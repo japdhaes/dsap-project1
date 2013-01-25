@@ -4,6 +4,7 @@ Atom::Atom(rowvec phasearg)
 {
     this->phasevect=phasearg;
     this->chemelement="Ar";
+    this->m=39.948;
 }
 
 ostream& operator<< (ostream& os , const Atom& atom){

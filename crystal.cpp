@@ -1,10 +1,17 @@
 #include "crystal.h"
+#define K 0.8314766196505026
+#define T 100
 
+
+//Comment for future purposes:
+//Mean is indeed approximate 0
+//Normal velocities should be around 1.44 A/ps=144 m/s
 Crystal::Crystal(unsigned int _nc, double b)
 {
     this->nc=_nc;
     this->numberofcells=nc*nc*nc;
     vec a=randn<vec>(3*4*8*8*8);
+
     unsigned int index=0;
 
     //constructing a nc x nc x nc structure of cells
@@ -14,11 +21,12 @@ Crystal::Crystal(unsigned int _nc, double b)
         for(int j=0; j< nc; ++j){
             this->allcells[i][j]=new Cell[nc];
             for(int k=0; k<nc ;++k){
-                //no velocity for the position of the cells
+                //initializing positions of the cells
                 this->allcells[i][j][k]=Cell(i*b, j*b, k*b, 0, 0, 0);
                 for(int l=0; l<4; l++){
                     for(int m=0; m<3; m++){
-                        this->allcells[i][j][k].atoms[l].phasevect(m+3)=a(index);
+                        //initializing velocities of the individual atoms
+                        this->allcells[i][j][k].atoms[l].phasevect(m+3)=(a(index))*(K*T/ this->allcells[i][j][k].atoms[l].m);
                         index++;
                     }
                 }

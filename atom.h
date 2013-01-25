@@ -14,6 +14,7 @@ class Atom
         rowvec phasevect;
 
         string chemelement;
+        double m;
         friend ostream& operator<<( ostream&, const Atom&);
 };
 

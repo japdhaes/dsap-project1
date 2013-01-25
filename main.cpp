@@ -19,6 +19,15 @@ void printing(int nc, double b){
 
 int main()
 {
+    //UNIT SYSTEM!!
+    //Distances = Angstrom
+    //Time = picosecond
+    //Energy = electronvolt
+    //Mass = enter in amu, wrong unit system is addressed for in value of k
+    //Temperature = Kelvin
+    //velocity = angstrom/ps
+    //k = 0.8314766196505026 when masses are expressed in amu and T in K to get velocities in A/ps
+
     //cubic lattice with nc x nc x nc cells
     int nc=8;
     //latice parameter in unit Angstrom
