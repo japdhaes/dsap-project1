@@ -4,6 +4,8 @@ Crystal::Crystal(unsigned int _nc, double b)
 {
     this->nc=_nc;
     this->numberofcells=nc*nc*nc;
+    vec a=randn<vec>(3*4*8*8*8);
+    unsigned int index=0;
 
     //constructing a nc x nc x nc structure of cells
     this->allcells=new Cell**[nc];
@@ -14,10 +16,15 @@ Crystal::Crystal(unsigned int _nc, double b)
             for(int k=0; k<nc ;++k){
                 //no velocity for the position of the cells
                 this->allcells[i][j][k]=Cell(i*b, j*b, k*b, 0, 0, 0);
+                for(int l=0; l<4; l++){
+                    for(int m=0; m<3; m++){
+                        this->allcells[i][j][k].atoms[l].phasevect(m+3)=a(index);
+                        index++;
+                    }
+                }
             }
         }
     }
-
 }
 
 ostream& operator<< (ostream& os , const Crystal& crystal){

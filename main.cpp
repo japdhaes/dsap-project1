@@ -1,7 +1,21 @@
 #include <iostream>
 #include <fstream>
 #include "crystal.h"
+#include <armadillo>
+#include <ctime>
+
+using namespace arma;
 using namespace std;
+
+void printing(int nc, double b){
+    ofstream test;
+    test.open("/home/jonathan/projectsFSAP/project1/project1/locationatoms.xyz");
+
+    Crystal crystal(nc, b);
+    test << crystal << endl;
+    test.close();
+
+}
 
 int main()
 {
@@ -12,12 +26,8 @@ int main()
     cout << "this is a test!" << endl;
     cout << "Hello World!" << endl;
 
-    ofstream test;
-    test.open("/home/jonathan/projectsFSAP/project1/project1/locationatoms.xyz");
-
-    Crystal crystal(nc, b);
-    test << crystal << endl;
-    test.close();
+    printing(nc, b);
     return 0;
 }
+
 
