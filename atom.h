@@ -10,7 +10,7 @@ class Atom
 {
     public:
         Atom(){}
-        Atom(double x, double y, double z, double vx, double vy, double vz);
+        Atom(rowvec);
         rowvec phasevect;
 
         string chemelement;

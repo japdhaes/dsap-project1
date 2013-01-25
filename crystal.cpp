@@ -27,7 +27,7 @@ ostream& operator<< (ostream& os , const Crystal& crystal){
     for(int i=0; i<crystal.nc; i++){
         for(int j=0; j<crystal.nc; j++){
             for(int k=0; k<crystal.nc; k++){
-                os << crystal.allcells[i][j][k] << endl;
+                os << crystal.allcells[i][j][k] /*<< endl*/;
             }
         }
     }

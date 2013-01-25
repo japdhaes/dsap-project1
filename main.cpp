@@ -1,5 +1,6 @@
 #include <iostream>
-
+#include <fstream>
+#include "crystal.h"
 using namespace std;
 
 int main()
@@ -10,6 +11,13 @@ int main()
     double b=5.28;
     cout << "this is a test!" << endl;
     cout << "Hello World!" << endl;
+
+    ofstream test;
+    test.open("/home/jonathan/projectsFSAP/project1/project1/locationatoms.xyz");
+
+    Crystal crystal(nc, b);
+    test << crystal << endl;
+    test.close();
     return 0;
 }
 
