@@ -16,6 +16,8 @@ class Cell
         rowvec phasevect;
         Atom* atoms;
 
+        friend ostream& operator<<( ostream&, const Cell&);
+
 };
 
 #endif // CELL_H

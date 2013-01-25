@@ -12,6 +12,9 @@ class Atom
         Atom(){}
         Atom(double x, double y, double z, double vx, double vy, double vz);
         rowvec phasevect;
+
+        string chemelement;
+        friend ostream& operator<<( ostream&, const Atom&);
 };
 
 #endif // ATOM_H

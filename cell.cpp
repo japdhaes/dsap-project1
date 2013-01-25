@@ -14,3 +14,10 @@ Cell::Cell(double x, double y, double z, double vx, double vy, double vz)
     //there are 4 atoms in a FCC lattice unit cell
     atoms=new Atom[4];
 }
+
+ostream& operator<< (ostream& os , const Cell& cell){
+    for (int i=0; i<4; i++){
+        os << cell.atoms[i] << endl;
+    }
+    return os;
+}
