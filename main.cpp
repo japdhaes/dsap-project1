@@ -7,14 +7,45 @@
 using namespace arma;
 using namespace std;
 
-void printing(int nc, double b){
-    ofstream test;
-    test.open("/home/jonathan/projectsFSAP/project1/project1/locationatoms.xyz");
+void printing(Crystal &crystal){
+    ofstream output;
+    output.open("/home/jonathan/projectsFSAP/project1/project1/output/locationatoms.xyz");
+    output << crystal << endl;
+    output.close();
+}
 
-    Crystal crystal(nc, b);
-    test << crystal << endl;
-    test.close();
+void printvelocities(Crystal &crystal){
+    ofstream outputx, outputy, outputz, outputtot;
+    outputx.open("/home/jonathan/projectsFSAP/project1/project1/output/velocity-x.dat");
+    outputy.open("/home/jonathan/projectsFSAP/project1/project1/output/velocity-y.dat");
+    outputz.open("/home/jonathan/projectsFSAP/project1/project1/output/velocity-z.dat");
+    outputtot.open("/home/jonathan/projectsFSAP/project1/project1/output/velocity-vtot.dat");
 
+    int nc = crystal.nc;
+    for(int i=0; i< nc ;++i){
+        for(int j=0; j< nc; ++j){
+            for(int k=0; k<nc ;++k){
+                //now at the level of cells
+                for(int l=0; l<4; l++){
+                    //now at the level of atoms
+                    double vtot=0;
+                    for(int m=0; m<3; m++){
+                        //initializing velocities of the individual atoms
+                        vtot+=(crystal.allcells[i][j][k].atoms[l].phasevect(m+3))*(crystal.allcells[i][j][k].atoms[l].phasevect(m+3));
+                    }
+                    vtot=sqrt(vtot);
+                    outputtot << vtot << endl;
+                    outputx << crystal.allcells[i][j][k].atoms[l].phasevect(3) << endl;
+                    outputy << crystal.allcells[i][j][k].atoms[l].phasevect(4) << endl;
+                    outputz << crystal.allcells[i][j][k].atoms[l].phasevect(5) << endl;
+                }
+            }
+        }
+    }
+    outputx.close();
+    outputy.close();
+    outputz.close();
+    outputtot.close();
 }
 
 int main()
@@ -35,7 +66,9 @@ int main()
     cout << "this is a test!" << endl;
     cout << "Hello World!" << endl;
 
-    printing(nc, b);
+    Crystal crystal(nc, b);
+    printing(crystal);
+    printvelocities(crystal);
     return 0;
 }
 
