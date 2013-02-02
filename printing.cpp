@@ -44,6 +44,9 @@ string Printing::createname( int number){
     else if(number <1000){
         oss<<"0"<<number;
     }
+    else{
+        oss<<number;
+    }
 
     return oss.str();
 }

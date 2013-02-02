@@ -37,6 +37,9 @@ int main()
     p.printing(crystal);
     VerletAlgo integrator(crystal);
     for(int j=1; j<2000; j++){
+        if(j%10==0){
+            cout << "now in step " << j << " in the simulation" << endl;
+        }
         ofstream output;
         output.open(p.createname(j).c_str());
         for(unsigned int i=0; i<crystal.allatoms.size(); i++){
