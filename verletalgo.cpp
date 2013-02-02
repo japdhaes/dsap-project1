@@ -9,8 +9,7 @@ VerletAlgo::VerletAlgo(Crystal &crystal)
 }
 
 void VerletAlgo::integrate(Crystal &crystal){
-    int nc=crystal.nc;
-    for(int i=0; i<crystal.allatoms.size(); i++){
+    for(unsigned int i=0; i<crystal.allatoms.size(); i++){
         integrateAtom(crystal.allatoms[i]);
     }
 }
@@ -35,7 +34,7 @@ void VerletAlgo::integrateAtom(Atom *atom){
     position+=velocity*this->h;
 
     if(withAcceleration){
-        for(int i=0; i<crystall.allatoms.size(); i++){
+        for(unsigned int i=0; i<crystall.allatoms.size(); i++){
             vec3 relvec = atom->getPosition()-crystall.allatoms[i]->getPosition();
             calcAcceler(relvec, acceleration);
         }

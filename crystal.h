@@ -6,6 +6,7 @@
 #include "zigrandom.h"
 #include <vector>
 #include "atom.h"
+#include "lib.h"
 
 using namespace std;
 
@@ -13,7 +14,7 @@ class Crystal
 {
     public:
         Crystal(){}
-        Crystal(unsigned int nc, double b, int& seed);
+        Crystal(unsigned int nc, double b, long& seed);
 
         vector<Atom*> allatoms;
 

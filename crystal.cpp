@@ -6,9 +6,8 @@
 //Comment for future purposes:
 //Mean is indeed approximate 0
 //Normal velocities should be around 1.44 A/ps=144 m/s
-Crystal::Crystal(unsigned int _nc, double b, int &seed)
+Crystal::Crystal(unsigned int _nc, double b, long &seed)
 {
-    cout << "Hello World!" << endl;
     this->nc=_nc;
     this->numberofcells=nc*nc*nc;
 
@@ -30,26 +29,18 @@ Crystal::Crystal(unsigned int _nc, double b, int &seed)
                 r3=positioncell+r3;
                 r4=positioncell+r4;
 
-                if(i<2 && j<2 && k<2){
-                    cout << "i " << i << " j " << j << " k "<< k << endl;
-                    cout << "position cell " << positioncell << endl;
-                    cout << "b " << b << endl;
-                    cout << "b/Xunit/2 "<< b/Xunit/2 << endl;
-                    cout << "r1 " << r1 << endl;
-                    cout << "r2 " << r2 << endl;
-                    cout << "r3 " << r3 << endl;
-                    cout << "r4 " << r4 << endl;
-                }
-
-                v1=randn(3)*sqrt(3*tem);
-                v2=randn(3)*sqrt(3*tem);
-                v3=randn(3)*sqrt(3*tem);
-                v4=randn(3)*sqrt(3*tem);
-
-                /*v1=DRanNormalZigVec()*sqrt(3*tem);
-                v2=DRanNormalZigVec()*sqrt(3*tem);
-                v3=DRanNormalZigVec()*sqrt(3*tem);
-                v4=DRanNormalZigVec()*sqrt(3*tem);*/
+                v1.fill(0); v2.fill(0); v3.fill(0); v4.fill(0);
+                double vx[2], vy[2], vz[2];
+                gausran(vx, vx+1, &seed);
+                gausran(vy, vy+1, &seed);
+                gausran(vz, vz+1, &seed);
+                v1 << vx[0]*sqrt(3*tem)<< vy[0]*sqrt(3*tem)<< vz[0]*sqrt(3*tem);
+                v2 << vx[1]*sqrt(3*tem)<< vy[1]*sqrt(3*tem)<< vz[1]*sqrt(3*tem);
+                gausran(vx, vx+1, &seed);
+                gausran(vy, vy+1, &seed);
+                gausran(vz, vz+1, &seed);
+                v3 << vx[0]*sqrt(3*tem)<< vy[0]*sqrt(3*tem)<< vz[0]*sqrt(3*tem);
+                v4 << vx[1]*sqrt(3*tem)<< vy[1]*sqrt(3*tem)<< vz[1]*sqrt(3*tem);
 
                 Atom* atom1=new Atom(r1, v1);
                 Atom* atom2=new Atom(r2, v2);
@@ -82,11 +73,7 @@ ostream& operator<< (ostream& os , const Crystal& crystal){
     for(it=myvector.begin(); it!=myvector.end(); ++it){
         vec3 position=(*it)->getPosition();
         vec3 velocity=(*it)->getVelocity();
-        if(i<5){
-            cout << (*it)->chemelement << " "<< position(0)*3.405 << " " << position(1)*3.405 << " " << position(2)*3.405 << endl;
-            cout << (*it)->chemelement << " "<< position(0) << " " << position(1) << " " << position(2) << endl;
-        }
-        os << (*it)->chemelement << " "<< position(0)*3.405 << " " << position(1)*3.405 << " " << position(2)*3.405 << endl;
+        os << (*it)->chemelement << " "<< position(0)*3.405 << " " << position(1)*3.405 << " " << position(2)*3.405 << " " << velocity(0)<< " " << velocity(1)<< " "<< velocity(2)<< endl;
         i++;
     }
     return os;
