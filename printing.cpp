@@ -47,6 +47,6 @@ string Printing::createname( int number){
     else{
         oss<<number;
     }
-
+    oss<<".xyz";
     return oss.str();
 }
