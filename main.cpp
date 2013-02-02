@@ -43,7 +43,7 @@ int main()
         ofstream output;
         output.open(p.createname(j).c_str());
         for(unsigned int i=0; i<crystal.allatoms.size(); i++){
-            integrator.integrateAtom(crystal.allatoms[i]);
+            integrator.integrateAtom(crystal.allatoms[i],crystal.boundary);
         }
         output << crystal << endl;
     }

@@ -12,11 +12,12 @@ class VerletAlgo
 public:
     VerletAlgo(Crystal &crystal);
     void integrate(Crystal &crystal);
-    void integrateAtom(Atom *atom);
+    void integrateAtom(Atom *atom, vec3 boundvec);
     void calcAcceler(vec3 &position, vec3 &answer);
 
     double h;
     Crystal crystall;
+    void boundCheck(vec3 &position, vec3 &boundvec);
 };
 
 #endif // VERLETALGO_H

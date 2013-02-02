@@ -10,6 +10,7 @@ Crystal::Crystal(unsigned int _nc, double b, long &seed)
 {
     this->nc=_nc;
     this->numberofcells=nc*nc*nc;
+    this->boundary << nc << nc << nc;
 
     //RanNormalSetSeedZigVec(&seed, 100);
     double T=100, tem = T/Tunit;

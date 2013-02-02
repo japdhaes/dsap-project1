@@ -19,7 +19,8 @@ class Crystal
         vector<Atom*> allatoms;
 
         int numberofcells;
-        int nc;       
+        int nc;
+        vec3 boundary;
 
         friend ostream& operator<<( ostream&, const Crystal&);
 };
