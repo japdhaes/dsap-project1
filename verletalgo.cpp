@@ -44,4 +44,7 @@ void VerletAlgo::integrateAtom(Atom *atom){
     }
 
     velocity+=0.5*acceleration*this->h;
+
+    atom->setPosition(position);
+    atom->setVelocity(velocity);
 }
