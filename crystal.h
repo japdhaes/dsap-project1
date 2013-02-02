@@ -2,18 +2,23 @@
 #define CRYSTAL_H
 
 #include <iostream>
-#include "cell.h"
+#include "zignor.h"
+#include "zigrandom.h"
+#include <vector>
+#include "atom.h"
 
 using namespace std;
 
 class Crystal
 {
     public:
-        Crystal(unsigned int nc, double b);
-        Cell*** allcells;
+        Crystal(){}
+        Crystal(unsigned int nc, double b, int& seed);
+
+        vector<Atom*> allatoms;
 
         int numberofcells;
-        int nc;
+        int nc;       
 
         friend ostream& operator<<( ostream&, const Crystal&);
 };

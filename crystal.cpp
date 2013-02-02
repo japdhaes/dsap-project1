@@ -1,35 +1,65 @@
 #include "crystal.h"
-#define K 0.8314766196505026
-#define T 100
+#define Tunit 119.74
+#define Xunit 3.405
 
 
 //Comment for future purposes:
 //Mean is indeed approximate 0
 //Normal velocities should be around 1.44 A/ps=144 m/s
-Crystal::Crystal(unsigned int _nc, double b)
+Crystal::Crystal(unsigned int _nc, double b, int &seed)
 {
+    cout << "Hello World!" << endl;
     this->nc=_nc;
     this->numberofcells=nc*nc*nc;
-    vec a=randn<vec>(3*4*8*8*8);
 
-    unsigned int index=0;
-
+    //RanNormalSetSeedZigVec(&seed, 100);
+    double T=100, tem = T/Tunit;
     //constructing a nc x nc x nc structure of cells
-    this->allcells=new Cell**[nc];
     for(int i=0; i< nc ;++i){
-        this->allcells[i]=new Cell*[nc];
         for(int j=0; j< nc; ++j){
-            this->allcells[i][j]=new Cell[nc];
             for(int k=0; k<nc ;++k){
-                //initializing positions of the cells
-                this->allcells[i][j][k]=Cell(i*b, j*b, k*b, 0, 0, 0);
-                for(int l=0; l<4; l++){
-                    for(int m=0; m<3; m++){
-                        //initializing velocities of the individual atoms
-                        this->allcells[i][j][k].atoms[l].phasevect(m+3)=(a(index))*(K*T/ this->allcells[i][j][k].atoms[l].m);
-                        index++;
-                    }
+                vec3 positioncell, r1, r2, r3, r4, v1, v2, v3, v4;
+                positioncell.zeros(); r1.zeros(); r2.zeros(); r3.zeros(); r4.zeros();
+                positioncell << i*b/Xunit << j*b/Xunit << k*b/Xunit;
+                r2 << b/Xunit/2 << b/Xunit/2 << 0;
+                r3 << 0  << b/Xunit/2<< b/Xunit/2;
+                r4 << b/Xunit/2 << 0 << b/Xunit/2;
+
+                r1=positioncell+r1;
+                r2=positioncell+r2;
+                r3=positioncell+r3;
+                r4=positioncell+r4;
+
+                if(i<2 && j<2 && k<2){
+                    cout << "i " << i << " j " << j << " k "<< k << endl;
+                    cout << "position cell " << positioncell << endl;
+                    cout << "b " << b << endl;
+                    cout << "b/Xunit/2 "<< b/Xunit/2 << endl;
+                    cout << "r1 " << r1 << endl;
+                    cout << "r2 " << r2 << endl;
+                    cout << "r3 " << r3 << endl;
+                    cout << "r4 " << r4 << endl;
                 }
+
+                v1=randn(3)*sqrt(3*tem);
+                v2=randn(3)*sqrt(3*tem);
+                v3=randn(3)*sqrt(3*tem);
+                v4=randn(3)*sqrt(3*tem);
+
+                /*v1=DRanNormalZigVec()*sqrt(3*tem);
+                v2=DRanNormalZigVec()*sqrt(3*tem);
+                v3=DRanNormalZigVec()*sqrt(3*tem);
+                v4=DRanNormalZigVec()*sqrt(3*tem);*/
+
+                Atom* atom1=new Atom(r1, v1);
+                Atom* atom2=new Atom(r2, v2);
+                Atom* atom3=new Atom(r3, v3);
+                Atom* atom4=new Atom(r4, v4);
+
+                this->allatoms.push_back(atom1);
+                this->allatoms.push_back(atom2);
+                this->allatoms.push_back(atom3);
+                this->allatoms.push_back(atom4);
             }
         }
     }
@@ -39,12 +69,25 @@ ostream& operator<< (ostream& os , const Crystal& crystal){
     //first write down the total number of atoms in the simulated crystal
     os << 4*crystal.nc*crystal.nc*crystal.nc << endl;
     os << "Some comments here" << endl;
-    for(int i=0; i<crystal.nc; i++){
+    /*for(int i=0; i<crystal.nc; i++){
         for(int j=0; j<crystal.nc; j++){
             for(int k=0; k<crystal.nc; k++){
-                os << crystal.allcells[i][j][k] /*<< endl*/;
+                os << crystal.allcells[i][j][k] << endl;
             }
         }
+    }*/
+    vector<Atom*> myvector=crystal.allatoms;
+    vector<Atom*>::iterator it=myvector.begin();
+    int i=0;
+    for(it=myvector.begin(); it!=myvector.end(); ++it){
+        vec3 position=(*it)->getPosition();
+        vec3 velocity=(*it)->getVelocity();
+        if(i<5){
+            cout << (*it)->chemelement << " "<< position(0)*3.405 << " " << position(1)*3.405 << " " << position(2)*3.405 << endl;
+            cout << (*it)->chemelement << " "<< position(0) << " " << position(1) << " " << position(2) << endl;
+        }
+        os << (*it)->chemelement << " "<< position(0)*3.405 << " " << position(1)*3.405 << " " << position(2)*3.405 << endl;
+        i++;
     }
     return os;
 }

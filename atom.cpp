@@ -1,17 +1,31 @@
 #include "atom.h"
 
-Atom::Atom(rowvec phasearg)
-{
-    this->phasevect=phasearg;
+Atom::Atom(vec position, vec v): position(position), velocity(v){
     this->chemelement="Ar";
-    this->m=39.948;
 }
 
-ostream& operator<< (ostream& os , const Atom& atom){
-    os << atom.chemelement;
-    for(int i=0; i<6;i++){
-        os<< " " << atom.phasevect(i);
-    }
-    os<<endl;
-    return os;
+vec3 Atom::getPosition(){
+    return position;
+}
+
+vec3 Atom::getVelocity(){
+    return velocity;
+}
+
+void Atom::setPosition(const vec3 &newPosition){
+    this->position=newPosition;
+}
+
+void Atom::setVelocity(const vec3 &newVelocity){
+    this->velocity=newVelocity;
+}
+
+vec3 Atom::getAcceler()
+{
+    return this->acceler;
+}
+
+void Atom::setAcceler(const vec3 &newAcceler)
+{
+    this->acceler=newAcceler;
 }

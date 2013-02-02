@@ -4,12 +4,17 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += main.cpp \
-    cell.cpp \
     crystal.cpp \
-    atom.cpp
+    atom.cpp \
+    verletalgo.cpp \
+    zigrandom.c \
+    zignor.c
 
 HEADERS += \
-    cell.h \
     crystal.h \
-    atom.h
+    atom.h \
+    verletalgo.h \
+    zigrandom.h \
+    zignor.h
 
+LIBS += -larmadillo
