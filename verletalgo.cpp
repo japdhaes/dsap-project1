@@ -28,7 +28,7 @@ void VerletAlgo::integrateAtom(Atom *atom, vec3 boundvec){
     vec3 velocity=atom->getVelocity();
     vec3 acceler=atom->getAcceler();
     vec3 acceleration; acceleration.fill(0);
-    double withAcceleration=false;
+    double withAcceleration=true;
 
     velocity+=0.5*acceler*this->h;
     position+=velocity*this->h;
@@ -46,6 +46,7 @@ void VerletAlgo::integrateAtom(Atom *atom, vec3 boundvec){
 
     velocity+=0.5*acceleration*this->h;
 
+    atom->setAcceler(acceleration);
     atom->setPosition(position);
     atom->setVelocity(velocity);
 }
@@ -54,14 +55,10 @@ void VerletAlgo::integrateAtom(Atom *atom, vec3 boundvec){
 void VerletAlgo::boundCheck(vec3 &position, vec3 &boundvec){
     for(int i=0; i<3; i++){
         if(position(i)<0){
-            cout << "old position " << position << endl;
             position(i)+=boundvec(i);
-            cout << "new position " << position << endl;
         }
         else if(position(i)>boundvec(i)){
-            cout << "old position " << position << endl;
             position(i)-=boundvec(i);
-            cout << "new position " << position << endl;
         }
     }
 }
