@@ -10,6 +10,8 @@
 
 using namespace std;
 
+const double xunit  =3.405;
+
 class Crystal
 {
     public:

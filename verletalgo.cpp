@@ -54,10 +54,14 @@ void VerletAlgo::integrateAtom(Atom *atom, vec3 boundvec){
 void VerletAlgo::boundCheck(vec3 &position, vec3 &boundvec){
     for(int i=0; i<3; i++){
         if(position(i)<0){
+            cout << "old position " << position << endl;
             position(i)+=boundvec(i);
+            cout << "new position " << position << endl;
         }
         else if(position(i)>boundvec(i)){
+            cout << "old position " << position << endl;
             position(i)-=boundvec(i);
+            cout << "new position " << position << endl;
         }
     }
 }

@@ -10,9 +10,8 @@ Crystal::Crystal(unsigned int _nc, double b, long &seed)
 {
     this->nc=_nc;
     this->numberofcells=nc*nc*nc;
-    this->boundary << nc << nc << nc;
+    this->boundary << nc*b/xunit << nc*b/xunit << nc*b/xunit;
 
-    //RanNormalSetSeedZigVec(&seed, 100);
     double T=100, tem = T/Tunit;
     //constructing a nc x nc x nc structure of cells
     for(int i=0; i< nc ;++i){
@@ -20,10 +19,10 @@ Crystal::Crystal(unsigned int _nc, double b, long &seed)
             for(int k=0; k<nc ;++k){
                 vec3 positioncell, r1, r2, r3, r4, v1, v2, v3, v4;
                 positioncell.zeros(); r1.zeros(); r2.zeros(); r3.zeros(); r4.zeros();
-                positioncell << i*b/Xunit << j*b/Xunit << k*b/Xunit;
-                r2 << b/Xunit/2 << b/Xunit/2 << 0;
-                r3 << 0  << b/Xunit/2<< b/Xunit/2;
-                r4 << b/Xunit/2 << 0 << b/Xunit/2;
+                positioncell << i*b/xunit << j*b/xunit << k*b/xunit;
+                r2 << b/xunit/2 << b/xunit/2 << 0;
+                r3 << 0  << b/xunit/2<< b/xunit/2;
+                r4 << b/xunit/2 << 0 << b/xunit/2;
 
                 r1=positioncell+r1;
                 r2=positioncell+r2;
@@ -74,7 +73,7 @@ ostream& operator<< (ostream& os , const Crystal& crystal){
     for(it=myvector.begin(); it!=myvector.end(); ++it){
         vec3 position=(*it)->getPosition();
         vec3 velocity=(*it)->getVelocity();
-        os << (*it)->chemelement << " "<< position(0)*3.405 << " " << position(1)*3.405 << " " << position(2)*3.405 << " " << velocity(0)<< " " << velocity(1)<< " "<< velocity(2)<< endl;
+        os << (*it)->chemelement << " "<< position(0)*xunit << " " << position(1)*xunit << " " << position(2)*xunit << " " << velocity(0)<< " " << velocity(1)<< " "<< velocity(2)<< endl;
         i++;
     }
     return os;
