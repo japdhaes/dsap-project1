@@ -26,12 +26,13 @@ int main()
 
     //cubic lattice with nc x nc x nc cells
 
-    long seed = -1;
+    int seed = -1;
 
     int nc=8;
     //latice parameter in unit Angstrom
     double b=5.28;
 
+    system("rm /home/jonathan/projectsFSAP/project1/project1/output/*.xyz");
     Printing p;
     Crystal crystal(nc, b, seed);
     p.printing(crystal);
@@ -39,12 +40,12 @@ int main()
     for(int j=1; j<2000; j++){
         if(j%10==0){
             cout << "now in step " << j << " in the simulation" << endl;
+            cout << "nrofatomsfound "<<crystal.countAtoms()<< endl;
         }
         ofstream output;
         output.open(p.createname(j).c_str());
-        for(unsigned int i=0; i<crystal.allatoms.size(); i++){
-            integrator.integrateAtom(crystal.allatoms[i],crystal.boundary);
-        }
+
+        integrator.integrate();
 
         output << crystal << endl;
     }

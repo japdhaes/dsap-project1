@@ -20,6 +20,7 @@ class Atom
         vec3 getAcceler();
         void setAcceler(const vec3 &newAcceler);
 
+        friend ostream& operator<<( ostream&,  Atom&);
 
         string chemelement;
         double m;

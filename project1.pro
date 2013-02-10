@@ -7,18 +7,18 @@ SOURCES += main.cpp \
     crystal.cpp \
     atom.cpp \
     verletalgo.cpp \
-    zigrandom.c \
-    zignor.c \
     printing.cpp \
-    lib.cpp
+    lib.cpp \
+    zigrandom.c \
+    zignor.c
 
 HEADERS += \
     crystal.h \
     atom.h \
     verletalgo.h \
-    zigrandom.h \
-    zignor.h \
     printing.h \
-    lib.h
+    lib.h \
+    zigrandom.h \
+    zignor.h
 
 LIBS += -larmadillo

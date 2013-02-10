@@ -2,11 +2,10 @@
 #define CRYSTAL_H
 
 #include <iostream>
-#include "zignor.h"
-#include "zigrandom.h"
 #include <vector>
 #include "atom.h"
-#include "lib.h"
+#include "zignor.h"
+#include "zigrandom.h"
 
 using namespace std;
 
@@ -16,7 +15,7 @@ class Crystal
 {
     public:
         Crystal(){}
-        Crystal(unsigned int nc, double b, long& seed);
+        Crystal(unsigned int nc, double b, int& seed);
 
         vector<Atom*> allatoms;
 
@@ -24,6 +23,7 @@ class Crystal
         int nc;
         vec3 boundary;
 
+        int countAtoms();
         friend ostream& operator<<( ostream&, const Crystal&);
 };
 

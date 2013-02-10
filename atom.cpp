@@ -2,6 +2,8 @@
 
 Atom::Atom(vec position, vec v): position(position), velocity(v){
     this->chemelement="Ar";
+    vec3 r; r.fill(0);
+    this->setAcceler(r);
 }
 
 vec3 Atom::getPosition(){
@@ -28,4 +30,14 @@ vec3 Atom::getAcceler()
 void Atom::setAcceler(const vec3 &newAcceler)
 {
     this->acceler=newAcceler;
+}
+
+ostream& operator<< (ostream& os , Atom& atom){
+    //first write down the total number of atoms in the simulated crystal
+    vec3 position=atom.getPosition();
+    vec3 velocity=atom.getVelocity();
+    //os << position(0)*xunit<< " " << position(1)*xunit << " " << position(2)*xunit << " " << velocity(0)<< " " << velocity(1)<< " "<< velocity(2)<< endl;
+    os << position(0)<< " " << position(1) << " " << position(2) << " " << velocity(0)<< " " << velocity(1)<< " "<< velocity(2)<< endl;
+
+    return os;
 }

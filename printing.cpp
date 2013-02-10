@@ -20,7 +20,7 @@ void Printing::printvelocities(Crystal &crystal){
 
     for(unsigned int i=0; i<crystal.allatoms.size(); i++){
         vec3 velocity= crystal.allatoms[i]->getVelocity();
-        outputtot << norm(crystal.allatoms[i]->getVelocity(),3) << endl;
+        outputtot << norm(crystal.allatoms[i]->getVelocity(),2) << endl;
         outputx << velocity(0) << endl;
         outputy << velocity(1) << endl;
         outputz << velocity(2)<< endl;

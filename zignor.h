@@ -1,6 +1,3 @@
-#ifndef ZIGNOR_H
-#define ZIGNOR_H
-
 void    RanNormalSetSeedZig(int *piSeed, int cSeed);
 double  DRanNormalZig(void);
 void    RanNormalSetSeedZigVec(int *piSeed, int cSeed);
@@ -14,5 +11,3 @@ double  DRanQuanNormalZig(void);
 double  DRanQuanNormalZigVec(void);
 double  DRanQuanNormalZig32(void);
 double  DRanQuanNormalZig32Vec(void);
-
-#endif // ZIGNOR_H
