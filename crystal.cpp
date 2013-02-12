@@ -1,22 +1,92 @@
 #include "crystal.h"
 #include "zignor.c"
 #include "zigrandom.c"
-#define Tunit 119.74
 #define Xunit 3.405
 
 
 //Comment for future purposes:
 //Mean is indeed approximate 0
 //Normal velocities should be around 1.44 A/ps=144 m/s
-Crystal::Crystal(unsigned int _nc, double b, int &seed)
+Crystal::Crystal(unsigned int _nc, double _b, int &seed, double _temperature)
 {
+    //this->debugging2.open("/home/jonathan/projectsFSAP/project1/project1/debuglog2.txt");
     this->nc=_nc;
-    this->numberofcells=nc*nc*nc;
+    this->b=_b;
+    this->inittemp=_temperature;
     this->boundary << nc*b/xunit << nc*b/xunit << nc*b/xunit;
+    this->numberofatoms=4*nc*nc*nc;
 
-    double T=100, tem = T/Tunit;
+
+
     RanNormalSetSeedZigVec(&seed, 100);
 
+    setvectorBC(3);
+
+    this->initializeAtoms(_temperature);
+    this->initializeCells();
+    this->addAllAtomsToCells();
+
+}
+
+void Crystal::addAllAtomsToCells(){
+    ofstream debugging;
+    debugging.open("/home/jonathan/projectsFSAP/project1/project1/debuglog2.txt");
+    debugging << "boundary" <<this->boundary << endl << "vectorBC" << this->vectorBC << endl;
+    for(unsigned int i=0; i<this->allatoms.size(); i++){
+        vec3 r = (this->allatoms[i])->getPosition();
+        Atom* atom = this->allatoms[i];
+        int intpos[3];
+        for(int j=0; j<3; j++){
+            intpos[j]=int(r(j)/this->vectorBC(j));
+        }
+        this->allcells.at(intpos[0]).at(intpos[1]).at(intpos[2]).insertElement(atom);
+
+    }
+    for(unsigned int i=0; i<this->allatoms.size(); i++){
+        Atom* atom = this->allatoms[i];
+        debugging << "current atom with position " << this->allatoms[i]->getPosition() <<endl << "==============================" << endl;
+        debugging << "previous atom ";
+        if(atom->previousAtom!=NULL){
+            debugging << atom->previousAtom->getPosition()<<endl;
+        }
+        else{
+            debugging << "doesnt exist" << endl;
+        }
+        debugging << "next atom ";
+        if(atom->nextAtom!=NULL){
+            debugging << atom->nextAtom->getPosition()<<endl;
+        }
+        else{
+            debugging << "doesnt exist" << endl;
+        }
+    }
+}
+
+void Crystal::initializeCells(){
+    vec3 vectorBC=this->vectorBC;
+
+    int nrXYZ[3];
+    for(int i=0; i<3; i++){
+        nrXYZ[i]=int(boundary(i)/vectorBC(i));
+    }
+
+    this->allcells.resize(nrXYZ[0]);
+    for(int i=0; i<nrXYZ[0]; i++){
+        this->allcells[i].resize(nrXYZ[1]);
+        for(int j=0; j<nrXYZ[1]; j++){
+            this->allcells[i][j].resize(nrXYZ[2]);
+            for(int k=0; k<nrXYZ[2]; k++){
+                allcells.at(i).at(j).at(k).x=i;
+                allcells.at(i).at(j).at(k).y=j;
+                allcells.at(i).at(j).at(k).z=k;
+                allcells.at(i).at(j).at(k).vectorBC=this->vectorBC;
+            }
+        }
+    }
+}
+
+void Crystal::initializeAtoms(double _temperature){
+    double tem = _temperature/tempunit;
     //constructing a nc x nc x nc structure of cells
     for(int i=0; i< nc ;++i){
         for(int j=0; j< nc; ++j){
@@ -55,7 +125,7 @@ Crystal::Crystal(unsigned int _nc, double b, int &seed)
 
 ostream& operator<< (ostream& os , const Crystal& crystal){
     //first write down the total number of atoms in the simulated crystal
-    os << 4*crystal.nc*crystal.nc*crystal.nc << endl;
+    os << crystal.numberofatoms << endl;
     os << "Some comments here" << endl;
     vector<Atom*> myvector=crystal.allatoms;
     vector<Atom*>::iterator it=myvector.begin();
@@ -84,4 +154,19 @@ int Crystal::countAtoms(){
         }
     }
     return nr;
+}
+
+//This function will find a width for cells in the crystal
+//with a width as close to the desiredwidth as possible
+//so that we still have an integer number of equally sized cells
+//in the crystal
+//if you want to have boxes with width of 3 sigma, set desiredwidth to 3
+//this function works in computer units of sigma!
+void Crystal::setvectorBC(double desiredwidth)
+{
+    this->vectorBC.fill(0);
+    for(int i=0; i<3; i++){
+        int j = int(boundary(i) / desiredwidth);
+        this->vectorBC(i)= this->boundary(i)/j;
+    }
 }

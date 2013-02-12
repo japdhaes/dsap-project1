@@ -4,6 +4,10 @@ Atom::Atom(vec position, vec v): position(position), velocity(v){
     this->chemelement="Ar";
     vec3 r; r.fill(0);
     this->setAcceler(r);
+
+    this->previousAtom=NULL;
+    this->nextAtom=NULL;
+
 }
 
 vec3 Atom::getPosition(){

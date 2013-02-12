@@ -4,7 +4,7 @@
 
 VerletAlgo::VerletAlgo(Crystal &crystal)
 {
-    this->debugging.open("/home/jonathan/projectsFSAP/project1/project1/debuglog.txt");
+    //this->debugging.open("/home/jonathan/projectsFSAP/project1/project1/debuglog.txt");
     this->crystall=crystal;
     this->h=0.01;
 }
@@ -18,14 +18,14 @@ void VerletAlgo::integrate(){
     }
     for(unsigned int i=0; i<crystal.allatoms.size(); i++){
         if(debugg){
-            debugging << "INTEGRATING NEW ATOM"<<endl;
+            /*debugging << "INTEGRATING NEW ATOM"<<endl;
             debugging << "----------------------------------------------------------------------" << endl;
             debugging << "----------------------------------------------------------------------" << endl;
             debugging << "----------------------------------------------------------------------" << endl;
             debugging << "----------------------------------------------------------------------" << endl;
             debugging << "----------------------------------------------------------------------" << endl;
             debugging << "----------------------------------------------------------------------" << endl;
-            debugging << "----------------------------------------------------------------------" << endl;
+            debugging << "----------------------------------------------------------------------" << endl;*/
         }
         updateAcceler(crystal.allatoms[i]);
 
@@ -79,11 +79,11 @@ void VerletAlgo::updateAcceler(Atom *atom){
         vec3 othervec = crystall.allatoms[i]->getPosition();
         //cout << "relvec " << relvec << endl;
         if(debugg){
-            debugging << "INTEGRATING ATOM "<< *atom << " with other atom " << *(crystall.allatoms[i])<<endl;
+            //debugging << "INTEGRATING ATOM "<< *atom << " with other atom " << *(crystall.allatoms[i])<<endl;
         }
         calcAcceler(position, othervec, acceler);
     }
-    debugging << norm(acceler,2)<< endl;
+    //debugging << norm(acceler,2)<< endl;
     if(norm(acceler,2)>500){
         for(int i=0; i<3; i++){
             //cout << "changed acceleration "<< endl;
@@ -97,15 +97,15 @@ vec3 VerletAlgo::findClosestPosition(vec3 &position, vec3 otherposition){
     vec3 answer; answer.fill(0);
     bool debugg=false;
     if(debugg){
-        debugging << __FUNCTION__ << endl;
+        /*debugging << __FUNCTION__ << endl;
         debugging << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
         debugging << "position " << position << endl;
-        debugging << "otherposition " << otherposition << endl;
+        debugging << "otherposition " << otherposition << endl;*/
     }
     for(int i=0; i<3; i++){
         if(debugg){
-            debugging << endl << endl << "integer " << i << endl;
-            debugging << "===================" << endl;
+            //debugging << endl << endl << "integer " << i << endl;
+            //debugging << "===================" << endl;
         }
         double projectionother = otherposition(i);
         double projectionpos = position(i);

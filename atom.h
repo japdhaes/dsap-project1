@@ -5,9 +5,13 @@
 
 #include <armadillo>
 #include <iostream>
+#include "cell.h"
 
 using namespace std;
 using namespace arma;
+
+class Cell;
+
 class Atom
 {
     public:
@@ -24,6 +28,11 @@ class Atom
 
         string chemelement;
         double m;
+
+        //used in Class cell
+        Atom* previousAtom;
+        Atom* nextAtom;
+        Cell* currentcell;
     protected:
         vec3 position;
         vec3 velocity;

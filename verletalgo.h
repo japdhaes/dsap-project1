@@ -10,7 +10,7 @@ using namespace arma;
 class VerletAlgo
 {
 public:
-    ofstream debugging;
+    //ofstream debugging;
     VerletAlgo(Crystal &crystal);
     void integrate();
     void integrateAtom(Atom *atom, vec3 boundvec);
