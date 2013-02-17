@@ -23,6 +23,9 @@ public:
     void updateAcceler(Atom *atom);
     void updatePosition(Atom *atom, vec3 boundvec);
     vec3 findClosestPosition(vec3 &position, vec3 otherposition);
+    void integrateWithCell();
+    void integrateCell(int i, int j, int k, int imax, int jmax, int kmax);
+    void integrateAtomToCell(Atom *integratingatom, int lfin, int mfin, int nfin);
 };
 
 #endif // VERLETALGO_H

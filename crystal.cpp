@@ -26,38 +26,44 @@ Crystal::Crystal(unsigned int _nc, double _b, int &seed, double _temperature)
     this->initializeCells();
     this->addAllAtomsToCells();
 
+
+}
+
+void Crystal::findCellOfAtom(Atom *atom, int &x, int &y, int &z){
+    vec3 r= atom->getPosition();
+    x=int(r(0)/this->vectorBC(0));
+    y=int(r(1)/this->vectorBC(1));
+    z=int(r(2)/this->vectorBC(2));
 }
 
 void Crystal::addAllAtomsToCells(){
-    ofstream debugging;
-    debugging.open("/home/jonathan/projectsFSAP/project1/project1/debuglog2.txt");
-    debugging << "boundary" <<this->boundary << endl << "vectorBC" << this->vectorBC << endl;
+    //ofstream debugging;
+    //debugging.open("/home/jonathan/projectsFSAP/project1/project1/debuglog2.txt");
+    //debugging << "boundary" <<this->boundary << endl << "vectorBC" << this->vectorBC << endl;
     for(unsigned int i=0; i<this->allatoms.size(); i++){
         vec3 r = (this->allatoms[i])->getPosition();
         Atom* atom = this->allatoms[i];
-        int intpos[3];
-        for(int j=0; j<3; j++){
-            intpos[j]=int(r(j)/this->vectorBC(j));
-        }
-        this->allcells.at(intpos[0]).at(intpos[1]).at(intpos[2]).insertElement(atom);
+        int x, y, z;
+        findCellOfAtom(atom, x, y, z);
+        this->allcells.at(x).at(y).at(z).insertElement(atom);
 
     }
     for(unsigned int i=0; i<this->allatoms.size(); i++){
         Atom* atom = this->allatoms[i];
-        debugging << "current atom with position " << this->allatoms[i]->getPosition() <<endl << "==============================" << endl;
-        debugging << "previous atom ";
+        //debugging << "current atom with position " << this->allatoms[i]->getPosition() <<endl << "==============================" << endl;
+        //debugging << "previous atom ";
         if(atom->previousAtom!=NULL){
-            debugging << atom->previousAtom->getPosition()<<endl;
+            //debugging << atom->previousAtom->getPosition()<<endl;
         }
         else{
-            debugging << "doesnt exist" << endl;
+            //debugging << "doesnt exist" << endl;
         }
-        debugging << "next atom ";
+        //debugging << "next atom ";
         if(atom->nextAtom!=NULL){
-            debugging << atom->nextAtom->getPosition()<<endl;
+            //debugging << atom->nextAtom->getPosition()<<endl;
         }
         else{
-            debugging << "doesnt exist" << endl;
+            //debugging << "doesnt exist" << endl;
         }
     }
 }

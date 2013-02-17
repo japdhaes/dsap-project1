@@ -40,6 +40,7 @@ class Crystal
         void initializeAtoms(double _temperature);
         void addAllAtomsToCells();
         void initializeCells();
+        void findCellOfAtom(Atom *atom, int &x, int &y, int &z);
 };
 
 #endif // CRYSTAL_H

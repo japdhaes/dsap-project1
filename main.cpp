@@ -38,7 +38,7 @@ int main()
     Crystal crystal(nc, b, seed, temperature);
     p.printing(crystal);
     VerletAlgo integrator(crystal);
-    for(int j=1; j<0; j++){
+    for(int j=1; j<2000; j++){
         if(j%10==0){
             cout << "now in step " << j << " in the simulation" << endl;
             cout << "nrofatomsfound "<<crystal.countAtoms()<< endl;
@@ -46,7 +46,7 @@ int main()
         ofstream output;
         output.open(p.createname(j).c_str());
 
-        integrator.integrate();
+        integrator.integrateWithCell();
 
         output << crystal << endl;
     }

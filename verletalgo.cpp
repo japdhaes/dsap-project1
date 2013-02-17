@@ -6,7 +6,7 @@ VerletAlgo::VerletAlgo(Crystal &crystal)
 {
     //this->debugging.open("/home/jonathan/projectsFSAP/project1/project1/debuglog.txt");
     this->crystall=crystal;
-    this->h=0.01;
+    this->h=0.0075;
 }
 
 void VerletAlgo::integrate(){
@@ -33,6 +33,108 @@ void VerletAlgo::integrate(){
     for(unsigned int i=0; i<crystal.allatoms.size(); i++){
         updateVelocity(crystal.allatoms[i]);
     }
+}
+
+void VerletAlgo::integrateWithCell(){
+    bool debugg=false;
+    ofstream debugging;
+    debugging.open("/home/jonathan/projectsFSAP/project1/project1/debuglog2.txt");
+    Crystal crystal = this->crystall;
+    for(unsigned int i=0; i<crystal.allatoms.size(); i++){
+        updateVelocity(crystal.allatoms[i]);
+        updatePosition(crystal.allatoms[i], crystal.boundary);
+    }
+    int imax = crystal.allcells.size();
+    int jmax=crystal.allcells.at(0).size();
+    int kmax=crystal.allcells.at(0).at(0).size();
+    for(int i=0; i<imax; i++){
+        for(int j=0; j<jmax; j++){
+            for(int k=0; k<kmax; k++){
+                debugging << "integrating atoms in cell (i,j,k)=" << i << " ";
+                debugging << j << " " << k << " ";
+                debugging << " to all atoms in cells ";
+
+                integrateCell(i,j,k,imax,jmax,kmax);
+
+
+                //cout << "i "<<i << " j "<< j << " k " << k << endl;
+            }
+        }
+    }
+
+    for(unsigned int i=0; i<crystal.allatoms.size(); i++){
+        updateVelocity(crystal.allatoms[i]);
+    }
+}
+
+void VerletAlgo::integrateCell(int i, int j, int k, int imax, int jmax, int kmax){
+    int lfin, mfin, nfin;
+    for(int l=i-1; l<i+2; l++){
+        if(l<0){
+            lfin=l+imax;
+        }
+        else if(l>=imax){
+            lfin=l-imax;
+        }
+        else{
+            lfin=l;
+        }
+        for(int m=j-1; m<j+2;m++){
+            if(m<0){
+                mfin=m+jmax;
+            }
+            else if(m>=jmax){
+                mfin=m-jmax;
+            }
+            else{
+                mfin=m;
+            }
+            for(int n=k-1; n<k+2; n++){
+                //cout << "n "<< n << " k "<< k << " kmax "<< kmax << endl;
+                if(n<0){
+                    nfin=n+kmax;
+                }
+                else if(n>=kmax){
+                    nfin=n-kmax;
+                }
+                else{
+                    nfin=n;
+                }
+
+                // lfin, mfin and nfin are the final (l,m,n) indices
+                // of the cells we calculate the acceleration of the
+                // atom at
+
+                Atom *integratingatom = (crystall.allcells.at(i).at(j).at(k)).first;
+                while(integratingatom!=NULL){
+                    //cout << "do i get here? before"<< endl;
+                    //cout << "lfin "<< lfin << " mfin "<< mfin << " nfin " << nfin << endl;
+                    integrateAtomToCell(integratingatom, lfin, mfin, nfin);
+                    //cout << "do i get here? after"<< endl;
+
+                    /*if(! crystall.allatoms.at(i).at(j).at(k).isAtomInCell(integratingatom)){
+                        crystall.allatoms.at(i).at(j).at(k).removeelement(integratingatom);
+                        crystall.findCellOfAtom(integratingatom, );
+
+                    }*/
+                    integratingatom=integratingatom->nextAtom;
+                }
+            }
+        }
+    }
+
+}
+
+void VerletAlgo::integrateAtomToCell(Atom *atom, int lfin, int mfin, int nfin){
+    vec3 position=atom->getPosition();
+    vec3 acceler; acceler.fill(0);
+    Atom *otheratom = crystall.allcells.at(lfin).at(mfin).at(nfin).first;
+    while(otheratom!=NULL){
+        vec3 othervec= otheratom->getPosition();
+        calcAcceler(position, othervec, acceler);
+        otheratom=otheratom->nextAtom;
+    }
+    atom->setAcceler(acceler);
 }
 
 void VerletAlgo::calcAcceler(vec3 &position, vec3 &othervec, vec3 &answer){
