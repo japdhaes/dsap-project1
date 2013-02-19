@@ -6,7 +6,7 @@ VerletAlgo::VerletAlgo(Crystal &crystal)
 {
     //this->debugging.open("/home/jonathan/projectsFSAP/project1/project1/debuglog.txt");
     this->crystall=crystal;
-    this->h=0.0075;
+    this->h=0.006;
 }
 
 void VerletAlgo::integrate(){
@@ -32,13 +32,15 @@ void VerletAlgo::integrate(){
     }
     for(unsigned int i=0; i<crystal.allatoms.size(); i++){
         updateVelocity(crystal.allatoms[i]);
+
     }
+
 }
 
 void VerletAlgo::integrateWithCell(){
     bool debugg=false;
     ofstream debugging;
-    debugging.open("/home/jonathan/projectsFSAP/project1/project1/debuglog2.txt");
+    debugging.open("/home/jonathan/projectsFSAP/project1/project1/debuglog2.txt", ios::app);
     Crystal crystal = this->crystall;
     for(unsigned int i=0; i<crystal.allatoms.size(); i++){
         updateVelocity(crystal.allatoms[i]);
@@ -50,9 +52,9 @@ void VerletAlgo::integrateWithCell(){
     for(int i=0; i<imax; i++){
         for(int j=0; j<jmax; j++){
             for(int k=0; k<kmax; k++){
-                debugging << "integrating atoms in cell (i,j,k)=" << i << " ";
+                /*debugging << "integrating atoms in cell (i,j,k)=" << i << " ";
                 debugging << j << " " << k << " ";
-                debugging << " to all atoms in cells ";
+                debugging << " to all atoms in cells ";*/
 
                 integrateCell(i,j,k,imax,jmax,kmax);
 
@@ -64,6 +66,13 @@ void VerletAlgo::integrateWithCell(){
 
     for(unsigned int i=0; i<crystal.allatoms.size(); i++){
         updateVelocity(crystal.allatoms[i]);
+        vec3 acceler = crystal.allatoms[i]->getAcceler();
+        //cout << "do i get here" << endl;
+        if(norm(acceler,2)<3){
+            //cout << " does this never happen? "<< endl;
+            debugging << "particle i "<<i << " not accelerated"<< endl;
+            debugging << acceler << endl;
+        }
     }
 }
 
@@ -168,7 +177,18 @@ void VerletAlgo::calcAcceler(vec3 &position, vec3 &othervec, vec3 &answer){
     if(norm(answer,2)>100){
         //debugging << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     }
-    answer-=24*(2*pow(r, -12)-pow(r, -6))*relvec/(r*r);
+
+    for(int i=0; i<3; i++){
+        if((24*(2*pow(r, -12)-pow(r, -6))*relvec(i)/(r*r))>400){
+            answer(i)-=400;
+        }
+        else if((24*(2*pow(r, -12)-pow(r, -6))*relvec(i)/(r*r))<-400){
+            answer(i)+=400;
+        }
+        else{
+            answer(i)-=24*(2*pow(r, -12)-pow(r, -6))*relvec(i)/(r*r);
+        }
+    }
     //debugging << "after answer is updated" << answer << endl;
 
 }
@@ -257,12 +277,12 @@ void VerletAlgo::updatePosition(Atom *atom, vec3 boundvec){
 
 void VerletAlgo::boundCheck(vec3 &position, vec3 &boundvec){
     for(int i=0; i<3; i++){
-        if(position(i)<0){
+        while(position(i)<0){
             //debugging << "summing boundvec at i="<<i<< " position(i)=" << position(i);
             position(i)+=boundvec(i);
             //debugging << "new position(i) " << position(i) << endl;
         }
-        else if(position(i)>boundvec(i)){
+        while(position(i)>boundvec(i)){
             position(i)-=boundvec(i);
         }
     }

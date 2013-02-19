@@ -15,6 +15,7 @@ Crystal::Crystal(unsigned int _nc, double _b, int &seed, double _temperature)
     this->inittemp=_temperature;
     this->boundary << nc*b/xunit << nc*b/xunit << nc*b/xunit;
     this->numberofatoms=4*nc*nc*nc;
+    this->forces=cube(numberofatoms, numberofatoms, 3);
 
 
 
@@ -93,6 +94,7 @@ void Crystal::initializeCells(){
 
 void Crystal::initializeAtoms(double _temperature){
     double tem = _temperature/tempunit;
+    int l=0;
     //constructing a nc x nc x nc structure of cells
     for(int i=0; i< nc ;++i){
         for(int j=0; j< nc; ++j){
@@ -119,6 +121,11 @@ void Crystal::initializeAtoms(double _temperature){
                 Atom* atom2=new Atom(r2, v2);
                 Atom* atom3=new Atom(r3, v3);
                 Atom* atom4=new Atom(r4, v4);
+
+                atom1->number=l; l++;
+                atom2->number=l; l++;
+                atom3->number=l; l++;
+                atom4->number=l; l++;
 
                 this->allatoms.push_back(atom1);
                 this->allatoms.push_back(atom2);

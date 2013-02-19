@@ -10,7 +10,8 @@ SOURCES += main.cpp \
     printing.cpp \
     zigrandom.c \
     zignor.c \
-    cell.cpp
+    cell.cpp \
+    verletalgo2.cpp
 
 HEADERS += \
     crystal.h \
@@ -19,6 +20,7 @@ HEADERS += \
     printing.h \
     zigrandom.h \
     zignor.h \
-    cell.h
+    cell.h \
+    verletalgo2.h
 
 LIBS += -larmadillo

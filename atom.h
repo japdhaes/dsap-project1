@@ -28,6 +28,7 @@ class Atom
 
         string chemelement;
         double m;
+        int number;
 
         //used in Class cell
         Atom* previousAtom;

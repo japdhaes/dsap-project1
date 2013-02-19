@@ -29,6 +29,7 @@ class Crystal
         int numberofatoms;
         int nc;
         vec3 boundary;
+        cube forces;
 
         int countAtoms();
         friend ostream& operator<<( ostream&, const Crystal&);
