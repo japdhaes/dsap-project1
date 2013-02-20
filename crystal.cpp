@@ -112,10 +112,10 @@ void Crystal::initializeAtoms(double _temperature){
                 r4=positioncell+r4;
 
                 v1.fill(0); v2.fill(0); v3.fill(0); v4.fill(0);
-                v1 << DRanNormalZigVec()*sqrt(3*tem)<< DRanNormalZigVec()*sqrt(3*tem)<< DRanNormalZigVec()*sqrt(3*tem);
-                v2 << DRanNormalZigVec()*sqrt(3*tem)<< DRanNormalZigVec()*sqrt(3*tem)<< DRanNormalZigVec()*sqrt(3*tem);
-                v3 << DRanNormalZigVec()*sqrt(3*tem)<< DRanNormalZigVec()*sqrt(3*tem)<< DRanNormalZigVec()*sqrt(3*tem);
-                v4 << DRanNormalZigVec()*sqrt(3*tem)<< DRanNormalZigVec()*sqrt(3*tem)<< DRanNormalZigVec()*sqrt(3*tem);
+                v1 << DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem);
+                v2 << DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem);
+                v3 << DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem);
+                v4 << DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem);
 
                 Atom* atom1=new Atom(r1, v1);
                 Atom* atom2=new Atom(r2, v2);

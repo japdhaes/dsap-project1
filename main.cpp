@@ -32,7 +32,7 @@ int main()
     int nc=8;
     //latice parameter in unit Angstrom
     double b=5.28;
-    double temperature=100;
+    double temperature=50;
 
     system("rm /home/jonathan/projectsFSAP/project1/project1/output/*.xyz");
     Printing p;
@@ -40,18 +40,21 @@ int main()
     p.printing(crystal);
     //VerletAlgo integrator(crystal);
     VerletAlgo2 integrator(crystal);
-    for(int j=1; j<2; j++){
-        if(j%10==0){
+    for(int j=1; j<3000; j++){
+        integrator.integrate();
+        if(j%5==0){
             cout << "now in step " << j << " in the simulation" << endl;
-            cout << "nrofatomsfound "<<crystal.countAtoms()<< endl;
+            //cout << "nrofatomsfound "<<crystal.countAtoms()<< endl;
         }
+
         ofstream output;
         output.open(p.createname(j).c_str());
 
         //integrator.integrateWithCell();
-        integrator.integrate();
+
 
         output << crystal << endl;
+
     }
     cout << "the boundary vector is " << crystal.boundary << endl;
     cout << "BC vector is " << crystal.vectorBC << endl;

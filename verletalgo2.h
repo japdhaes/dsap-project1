@@ -4,6 +4,7 @@
 #include <armadillo>
 #include "crystal.h"
 
+const double cutoffacceleration=200;
 //time unit of h =2.1569 *  10^3 fs
 
 using namespace arma;
@@ -27,6 +28,7 @@ public:
     void integrateCell(int i, int j, int k, int imax, int jmax, int kmax);
     void integrateAtomToCell(Atom *integratingatom, int lfin, int mfin, int nfin);
     void findXYZCellIndices(int *nrXYZ, int *nrX, int *nrY, int *nrZ);
+    void calcForce(Atom *atom, Atom *otheratom);
 };
 
 #endif // VERLETALGO2_H
