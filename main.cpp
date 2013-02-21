@@ -40,7 +40,7 @@ int main()
     p.printing(crystal);
     //VerletAlgo integrator(crystal);
     VerletAlgo2 integrator(crystal);
-    for(int j=1; j<3000; j++){
+    for(int j=1; j<1500; j++){
         integrator.integrate();
         if(j%5==0){
             cout << "now in step " << j << " in the simulation" << endl;

@@ -22,13 +22,15 @@ public:
     void calcAcceler(vec3 &position, vec3 &relvec, vec3 &answer);
     void updateVelocity(Atom *atom);
     void updateAcceler(Atom *atom);
-    void updatePosition(Atom *atom, vec3 boundvec);
-    vec3 findClosestPosition(vec3 &position, vec3 otherposition);
+    void updatePosition(Atom *atom, vec3 &boundvec);
+    vec3 findClosestPosition(vec3 &position, vec3 &otherposition);
     void integrateWithCell();
     void integrateCell(int i, int j, int k, int imax, int jmax, int kmax);
     void integrateAtomToCell(Atom *integratingatom, int lfin, int mfin, int nfin);
     void findXYZCellIndices(int *nrXYZ, int *nrX, int *nrY, int *nrZ);
     void calcForce(Atom *atom, Atom *otheratom);
+    void updateAcceler2(Atom *atom);
+    void integrate_noapprox();
 };
 
 #endif // VERLETALGO2_H
