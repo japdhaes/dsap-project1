@@ -34,6 +34,7 @@ class Atom
         Atom* previousAtom;
         Atom* nextAtom;
         Cell* currentcell;
+        vec3 realposition;
     protected:
         vec3 position;
         vec3 velocity;

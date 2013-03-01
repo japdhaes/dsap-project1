@@ -1,47 +1,80 @@
 #include "verletalgo2.h"
 
-VerletAlgo2::VerletAlgo2(Crystal &crystal)
+VerletAlgo2::VerletAlgo2(Crystal &crystal, double _h)
 {
-    //this->debugging.open("/home/jonathan/projectsFSAP/project1/project1/debuglog.txt");
+    this->debugging.open("/home/jonathan/projectsFSAP/project1/project1/debuglog.txt");
     this->crystall=crystal;
-    this->h=0.005;
+    this->h=0.0025;
 }
 
-void VerletAlgo2::integrate(){
-    ofstream debugging;
-    debugging.open("/home/jonathan/projectsFSAP/project1/project1/debuglog2.txt", ios::app);
-    crystall.forces.zeros();
+void VerletAlgo2::integrate(bool thermalize){
+    //ofstream debugging;
+    //debugging.open("/home/jonathan/projectsFSAP/project1/project1/debuglog2.txt", ios::app);
+    crystall.energy=0;
+
+    for(unsigned int i=0; i<crystall.allcells.size(); i++){
+        for(unsigned int j=0; j<crystall.allcells.at(i).size();j++){
+            for(unsigned int k=0; k<crystall.allcells.at(i).at(j).size(); k++){
+                crystall.allcells.at(i).at(j).at(k).visited=false;
+            }
+        }
+    }
+
     for(unsigned int i=0; i<crystall.allatoms.size(); i++){
         updateVelocity(crystall.allatoms[i]);
         updatePosition(crystall.allatoms[i], crystall.boundary);
     }
-    for(unsigned int i=0; i<crystall.allatoms.size(); i++){
-        updateAcceler(crystall.allatoms[i]);
 
-    }
-    for(unsigned int i=0; i<crystall.allatoms.size(); i++){
-        vec3 acceler;
-        acceler.fill(0);
-        for(int j=0; j<crystall.allatoms.size();j++){
-            for(int k=0;k<3;k++){
-                acceler(k)+=crystall.forces(i,j,k);
+    for(unsigned int i=0; i<crystall.allcells.size(); i++){
+        for(unsigned int j=0; j<crystall.allcells.at(i).size();j++){
+            for(unsigned int k=0; k<crystall.allcells.at(i).at(j).size(); k++){
+                crystall.allcells.at(i).at(j).at(k).visited=true;
+                Atom *atom = crystall.allcells.at(i).at(j).at(k).first;
+                while(atom!=NULL){
+                    updateAcceler(atom);
+                    atom=atom->nextAtom;
+                }
+
             }
         }
-        crystall.allatoms[i]->setAcceler(acceler);
+    }
+
+    for(unsigned int i=0; i<crystall.allatoms.size(); i++){
+        updateAcceler(crystall.allatoms[i]);
+    }
+    crystall.pe=crystall.energy;
+    //cout << "potential energy "<< potentialenergy<<endl;
+
+    for(unsigned int i=0; i<crystall.allatoms.size(); i++){
         updateVelocity(crystall.allatoms[i]);
+
+        //kinetic energy of the atom in the crystal
+        crystall.energy+=0.5*dot(crystall.allatoms[i]->getVelocity(),crystall.allatoms[i]->getVelocity());
+    }
+    crystall.ke= crystall.energy-crystall.pe;
+    if(thermalize){
+        double tem=crystall.temperature();
+        double ratio = crystall.inittemp/tem;
+        for(int i=0; i<crystall.allatoms.size();i++){
+            Atom *atom = crystall.allatoms[i];
+            vec3 velocity = atom->getVelocity();
+            atom->setVelocity(velocity*ratio);
+        }
+    }
+    if(crystall.beginenergy==0){
+        crystall.beginenergy=crystall.energy;
     }
 }
 
 void VerletAlgo2::integrate_noapprox(){
-    ofstream debugging;
-    debugging.open("/home/jonathan/projectsFSAP/project1/project1/debuglog2.txt", ios::app);
-    crystall.forces.zeros();
+    //ofstream debugging;
+    //debugging.open("/home/jonathan/projectsFSAP/project1/project1/debuglog2.txt", ios::app);
     for(unsigned int i=0; i<crystall.allatoms.size(); i++){
         updateVelocity(crystall.allatoms[i]);
         updatePosition(crystall.allatoms[i], crystall.boundary);
     }
     for(unsigned int i=0; i<crystall.allatoms.size(); i++){
-        updateAcceler2(crystall.allatoms[i]);
+        updateAccelerNoApprox(crystall.allatoms[i]);
 
     }
     for(unsigned int i=0; i<crystall.allatoms.size(); i++){
@@ -49,7 +82,7 @@ void VerletAlgo2::integrate_noapprox(){
         acceler.fill(0);
         for(int j=0; j<crystall.allatoms.size();j++){
             for(int k=0;k<3;k++){
-                acceler(k)+=crystall.forces(i,j,k);
+//                acceler(k)+=crystall.forces(i,j,k);
             }
         }
         crystall.allatoms[i]->setAcceler(acceler);
@@ -59,6 +92,18 @@ void VerletAlgo2::integrate_noapprox(){
 
 void VerletAlgo2::updateAcceler(Atom *atom){
     bool debugg=false;
+
+    Atom *oneatom=atom;
+    Atom* otheratom;
+    while(oneatom!=NULL){
+        otheratom=oneatom->nextAtom;
+        while(otheratom!=NULL){
+            calcForce(oneatom, otheratom);
+            otheratom=otheratom->nextAtom;
+        }
+        oneatom=oneatom->nextAtom;
+    }
+
     //ofstream debugging;
     //debugging.open("/home/jonathan/projectsFSAP/project1/project1/debuglog2.txt", ios::app);
     //indices of cell atom is in nrXYZ:
@@ -74,10 +119,12 @@ void VerletAlgo2::updateAcceler(Atom *atom){
     for(int i=0; i<3; i++){
         for(int j=0; j<3;j++){
             for(int k=0;k<3;k++){
-                Atom *otheratom = crystall.allcells.at(nrX[i]).at(nrY[j]).at(nrZ[k]).first;
-                while(otheratom!=NULL){
-                    calcForce(atom, otheratom);
-                    otheratom=otheratom->nextAtom;
+                if(crystall.allcells.at(i).at(j).at(k).visited!=true){
+                    otheratom = crystall.allcells.at(nrX[i]).at(nrY[j]).at(nrZ[k]).first;
+                    while(otheratom!=NULL){
+                        calcForce(atom, otheratom);
+                        otheratom=otheratom->nextAtom;
+                    }
                 }
             }
         }
@@ -85,7 +132,7 @@ void VerletAlgo2::updateAcceler(Atom *atom){
     }
 }
 
-void VerletAlgo2::updateAcceler2(Atom *atom){
+void VerletAlgo2::updateAccelerNoApprox(Atom *atom){
     bool debugg=false;
     //ofstream debugging;
     //debugging.open("/home/jonathan/projectsFSAP/project1/project1/debuglog2.txt", ios::app);
@@ -112,40 +159,46 @@ void VerletAlgo2::calcForce(Atom* atom, Atom* otheratom){
 
     //ofstream debugging;
     //debugging.open("/home/jonathan/projectsFSAP/project1/project1/debuglog2.txt", ios::app);
-    //stop if integrating atom with itself
+    //stop if integrating atom with itself, should normally not happen
     if(i==j){
+        cout << "PROBLEM" <<endl;
         return;
-    }
-    //stop the function if we have already set this force with newton's third law
-    for(int k=0; k<3; k++){
-        if(crystall.forces(i,j,k)!=0){
-            return;
-        }
     }
 
     vec3 position=atom->getPosition();
     vec3 othervec=otheratom->getPosition();
     vec3 closestvector = findClosestPosition(position, othervec);
     vec3 relvec = position - closestvector;
+    vec3 relvec2 = position - othervec;
     double r2=dot(relvec,relvec);
     double r6=r2*r2*r2;
     double r12=r6*r6;
 
+    vec3 oneacceler=atom->getAcceler();
+    vec3 otheracceler=otheratom->getAcceler();
     for(int k=0; k<3; k++){
         double temp = 24*(2.0/r12-1.0/r6)*relvec(k)/r2;
+        crystall.energy+=2.0*LJpotential( relvec2);
         if(temp>cutoffacceleration){
-            crystall.forces(i,j,k)=cutoffacceleration;
-            crystall.forces(j,i,k)=-1*cutoffacceleration;
+            temp=cutoffacceleration;
+            //crystall.forces(i,j,k)=cutoffacceleration;
+            //crystall.forces(j,i,k)=-1*cutoffacceleration;
         }
         else if(temp<-1*cutoffacceleration){
-            crystall.forces(i,j,k)=-1*cutoffacceleration;
-            crystall.forces(j,i,k)=cutoffacceleration;
+            temp=-cutoffacceleration;
+//            crystall.forces(i,j,k)=-1*cutoffacceleration;
+//            crystall.forces(j,i,k)=cutoffacceleration;
         }
-        else{
-            crystall.forces(i,j,k)=temp;
-            crystall.forces(j,i,k)=-temp;
-        }
+//        else{
+//            crystall.forces(i,j,k)=temp;
+//            crystall.forces(j,i,k)=-temp;
+//        }
+
+        oneacceler(k)+=temp;
+        otheracceler(k)-=temp;
     }
+    atom->setAcceler(oneacceler);
+    otheratom->setAcceler(otheracceler);
 }
 
 //this function finds the cellindices of the neighbouring cells
@@ -230,14 +283,19 @@ void VerletAlgo2::updateVelocity(Atom *atom){
 
 void VerletAlgo2::updatePosition(Atom *atom, vec3& boundvec){
     vec3 position=atom->getPosition();
+    vec3 velocity=atom->getVelocity();
+
     int nrXYZ[3];
     for(int i=0; i<3; i++){
         nrXYZ[i]=int(position(i)/crystall.vectorBC(i));
     }
-    vec3 velocity=atom->getVelocity();
+
     position+=velocity*this->h;
+    //realposition updated for the diffusion
+    atom->realposition+=velocity*this->h;
     boundCheck(position, boundvec);
     atom->setPosition(position);
+
     //if atom is not anymore in its cell
     if(!(crystall.allcells.at(nrXYZ[0]).at(nrXYZ[1]).at(nrXYZ[2]).isAtomInCell(atom))){
         crystall.allcells.at(nrXYZ[0]).at(nrXYZ[1]).at(nrXYZ[2]).removeelement(atom);
@@ -259,4 +317,13 @@ void VerletAlgo2::boundCheck(vec3 &position, vec3 &boundvec){
             position(i)-=boundvec(i);
         }
     }
+}
+
+double VerletAlgo2::LJpotential(vec3 &relvec){
+    double r=norm(relvec,2);
+    double r2=r*r;
+    double r6=r2*r2*r2;
+    double r12=r6*r6;
+
+    return 4*(1.0/r12-1.0/r6);
 }

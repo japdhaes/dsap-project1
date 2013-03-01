@@ -13,6 +13,7 @@ public:
     Cell();
     Cell(int _x, int _y, int _z):x(_x), y(_y), z(_z){}
     Atom* first;
+    double visited;
 
     void insertElement(Atom* atom);
     void removeelement(Atom *atom);

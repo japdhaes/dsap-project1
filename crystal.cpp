@@ -15,7 +15,8 @@ Crystal::Crystal(unsigned int _nc, double _b, int &seed, double _temperature)
     this->inittemp=_temperature;
     this->boundary << nc*b/xunit << nc*b/xunit << nc*b/xunit;
     this->numberofatoms=4*nc*nc*nc;
-    this->forces=cube(numberofatoms, numberofatoms, 3);
+    this->energy=0;
+    this->beginenergy=0;
 
 
 
@@ -24,10 +25,28 @@ Crystal::Crystal(unsigned int _nc, double _b, int &seed, double _temperature)
     setvectorBC(3);
 
     this->initializeAtoms(_temperature);
+    this->removeCrystalMomentum();
     this->initializeCells();
     this->addAllAtomsToCells();
 
+}
 
+void Crystal::removeCrystalMomentum(){
+    vec3 velocitylattice;
+    velocitylattice.zeros();
+    for(int i=0; i<this->allatoms.size(); i++){
+        Atom *atom = this->allatoms[i];
+        vec3 vel = atom->getVelocity();
+        velocitylattice+=vel;
+    }
+
+    velocitylattice/=this->allatoms.size();
+    for(int i=0; i<this->allatoms.size(); i++){
+        Atom *atom = this->allatoms[i];
+        vec3 vel = atom->getVelocity();
+        vel-=velocitylattice;
+        atom->setVelocity(vel);
+    }
 }
 
 void Crystal::findCellOfAtom(Atom *atom, int &x, int &y, int &z){
@@ -35,6 +54,24 @@ void Crystal::findCellOfAtom(Atom *atom, int &x, int &y, int &z){
     x=int(r(0)/this->vectorBC(0));
     y=int(r(1)/this->vectorBC(1));
     z=int(r(2)/this->vectorBC(2));
+}
+
+double Crystal::temperature()
+{
+    double temp=0;
+    for(int i=0; i<allatoms.size();i++){
+        Atom *atom=allatoms[i];
+        //temp+=0.5*dot(atom->getVelocity(), atom->getVelocity());
+        vec3 vel = atom->getVelocity();
+        double v = norm(vel,2);
+        temp+=0.5*v*v;
+    }
+
+    /*cout << "temperature1 "<<temp <<endl;
+    cout << "temperature2 " << temp*2.0/3 <<endl;
+    cout << "temperature3 " << temp*2.0/3/this->numberofatoms*tempunit<< endl;*/
+
+    return temp*2.0/3/this->numberofatoms;
 }
 
 void Crystal::addAllAtomsToCells(){
@@ -111,11 +148,22 @@ void Crystal::initializeAtoms(double _temperature){
                 r3=positioncell+r3;
                 r4=positioncell+r4;
 
-                v1.fill(0); v2.fill(0); v3.fill(0); v4.fill(0);
-                v1 << DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem);
-                v2 << DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem);
-                v3 << DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem);
-                v4 << DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem);
+
+                bool gaussiandistribution=true;
+                if(gaussiandistribution){
+                    v1.fill(0); v2.fill(0); v3.fill(0); v4.fill(0);
+                    v1 << DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem);
+                    v2 << DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem);
+                    v3 << DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem);
+                    v4 << DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem);
+                }
+                else{
+
+                    v1=randu(3); v1-=0.5; v1*=2*tem;
+                    v2=randu(3); v2-=0.5; v2*=2*tem;
+                    v3=randu(3); v3-=0.5; v3*=2*tem;
+                    v4=randu(3); v4-=0.5; v4*=2*tem;
+                }
 
                 Atom* atom1=new Atom(r1, v1);
                 Atom* atom2=new Atom(r2, v2);
