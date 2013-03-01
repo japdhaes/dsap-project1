@@ -17,7 +17,7 @@ Crystal::Crystal(unsigned int _nc, double _b, int &seed, double _temperature)
     this->numberofatoms=4*nc*nc*nc;
     this->energy=0;
     this->beginenergy=0;
-
+    this->counter=0;
 
 
     RanNormalSetSeedZigVec(&seed, 100);
@@ -28,7 +28,6 @@ Crystal::Crystal(unsigned int _nc, double _b, int &seed, double _temperature)
     this->removeCrystalMomentum();
     this->initializeCells();
     this->addAllAtomsToCells();
-
 }
 
 void Crystal::removeCrystalMomentum(){
@@ -66,11 +65,6 @@ double Crystal::temperature()
         double v = norm(vel,2);
         temp+=0.5*v*v;
     }
-
-    /*cout << "temperature1 "<<temp <<endl;
-    cout << "temperature2 " << temp*2.0/3 <<endl;
-    cout << "temperature3 " << temp*2.0/3/this->numberofatoms*tempunit<< endl;*/
-
     return temp*2.0/3/this->numberofatoms;
 }
 
@@ -86,24 +80,6 @@ void Crystal::addAllAtomsToCells(){
         this->allcells.at(x).at(y).at(z).insertElement(atom);
 
     }
-    for(unsigned int i=0; i<this->allatoms.size(); i++){
-        Atom* atom = this->allatoms[i];
-        //debugging << "current atom with position " << this->allatoms[i]->getPosition() <<endl << "==============================" << endl;
-        //debugging << "previous atom ";
-        if(atom->previousAtom!=NULL){
-            //debugging << atom->previousAtom->getPosition()<<endl;
-        }
-        else{
-            //debugging << "doesnt exist" << endl;
-        }
-        //debugging << "next atom ";
-        if(atom->nextAtom!=NULL){
-            //debugging << atom->nextAtom->getPosition()<<endl;
-        }
-        else{
-            //debugging << "doesnt exist" << endl;
-        }
-    }
 }
 
 void Crystal::initializeCells(){
@@ -111,7 +87,7 @@ void Crystal::initializeCells(){
 
     int nrXYZ[3];
     for(int i=0; i<3; i++){
-        nrXYZ[i]=int(boundary(i)/vectorBC(i));
+        nrXYZ[i]=round(boundary(i)/vectorBC(i));
     }
 
     this->allcells.resize(nrXYZ[0]);
@@ -201,17 +177,15 @@ ostream& operator<< (ostream& os , const Crystal& crystal){
 
 int Crystal::countAtoms(){
     int nr=0;
-    for(unsigned int i=0; i<this->allatoms.size(); i++){
-        bool atomisok=true;
-        for(int j=0; j<3; j++){
-            vec3 bounds=this->boundary;
-            vec3 position=this->allatoms[i]->getPosition();
-            if(position(j)<0 ||position(j)>bounds(j)){
-                atomisok=false;
+    for(int i=0; i<this->allcells.size();i++){
+        for(int j=0; j<this->allcells.size();j++){
+            for(int k=0; k <this->allcells.size();k++){
+                Atom *atom = this->allcells.at(i).at(j).at(k).first;
+                while(atom!=NULL){
+                    nr++;
+                    atom=atom->nextAtom;
+                }
             }
-        }
-        if(atomisok){
-            nr++;
         }
     }
     return nr;

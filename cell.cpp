@@ -49,6 +49,16 @@ void Cell::removeelement(Atom *atom){
     atom->previousAtom=NULL;
 }
 
+int Cell::countAtomsInCell(){
+    Atom *atom = first;
+    int answer=0;
+    while(atom!=NULL){
+        answer++;
+        atom=atom->nextAtom;
+    }
+    return answer;
+}
+
 bool Cell::isAtomInCell(Atom *atom){
     vec3 r = atom->getPosition();
     int intpos[3];

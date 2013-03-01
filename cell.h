@@ -24,6 +24,7 @@ public:
     int x, y, z;
     vec3 vectorBC;
     bool isAtomInCell(Atom* atom);
+    int countAtomsInCell();
 };
 
 #endif // CELL_H

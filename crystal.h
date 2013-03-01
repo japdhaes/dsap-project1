@@ -33,7 +33,7 @@ class Crystal
         int numberofatoms;
         int nc;
         double beginenergy;
-
+        int counter;
         vec3 boundary;
 
         int countAtoms();

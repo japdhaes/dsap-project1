@@ -15,7 +15,7 @@ void Printing::printvelocities(Crystal &crystal, int j){
     int number = j;
     stringstream oss;
     oss<<"/home/jonathan/projectsFSAP/project1/project1/output/";
-    oss<<"velocity-x-.";
+    oss<<"velocity-vtot-.";
     if(number<10){
         oss<<"000"<<number;
     }
@@ -33,22 +33,22 @@ void Printing::printvelocities(Crystal &crystal, int j){
 
     ofstream outputx, outputy, outputz, outputtot;
     //outputx.open(();
-    outputx.open(oss.str().c_str());
-    /*outputy.open("/home/jonathan/projectsFSAP/project1/project1/output/velocity-y.dat");
-    outputz.open("/home/jonathan/projectsFSAP/project1/project1/output/velocity-z.dat");
-    outputtot.open("/home/jonathan/projectsFSAP/project1/project1/output/velocity-vtot.dat");*/
+    //outputx.open(oss.str().c_str());
+    //outputy.open("/home/jonathan/projectsFSAP/project1/project1/output/velocity-y.dat");
+    //outputz.open("/home/jonathan/projectsFSAP/project1/project1/output/velocity-z.dat");
+    outputtot.open(oss.str().c_str());
 
     for(unsigned int i=0; i<crystal.allatoms.size(); i++){
         vec3 velocity= crystal.allatoms[i]->getVelocity();
-        //outputtot << norm(crystal.allatoms[i]->getVelocity(),2) << endl;
-        outputx << velocity(0) << endl;
+        outputtot << norm(crystal.allatoms[i]->getVelocity(),2) << endl;
+        //outputx << velocity(0) << endl;
         //outputy << velocity(1) << endl;
         //outputz << velocity(2)<< endl;
     }
     outputx.close();
     //outputy.close();
     //outputz.close();
-    //outputtot.close();
+    outputtot.close();
 }
 
 string Printing::createname( int number){

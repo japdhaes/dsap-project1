@@ -37,18 +37,17 @@ int main()
 
     int seed = -1;
 
-    int nc=9;
+    int nc=5;
     double h=0.0025;
     //latice parameter in unit Angstrom
     double b=5.28;
     double temperature=100;
 
-
     //200
-    int nrofthermalizingsteps=200;
+    int nrofthermalizingsteps=0;
 
-    //int nrofstepstotakemeasurements=2000;
-    int nrofstepstotakemeasurements=1800;
+    //int nrofstepstotakemeasurements=1800;
+    int nrofstepstotakemeasurements=1000;
 
     system("rm /home/jonathan/projectsFSAP/project1/project1/output/*.xyz");
     system("rm /home/jonathan/projectsFSAP/project1/project1/output/temperatures.txt");
@@ -56,7 +55,8 @@ int main()
     Crystal crystal(nc, b, seed, temperature);
     p.printing(crystal);
     //VerletAlgo integrator(crystal);
-    VerletAlgo2 integrator(crystal, h);
+    VerletAlgo2 integrator(&crystal, h);
+
     ofstream measurements;
     measurements.open("/home/jonathan/projectsFSAP/project1/project1/output/measurementsT0.0025.txt");
 
@@ -66,7 +66,7 @@ int main()
     for(int j=0; j<nrofthermalizingsteps; j++){
         //TURNED OFF THERMOSTAT!!!
         integrator.integrate(false);
-        measurements << j << " " <<crystal.temperature()<<" " << integrator.crystall.energy<<" " << integrator.crystall.ke<<" " << integrator.crystall.pe <<endl;
+        measurements << j << " " <<crystal.temperature()<<" " << integrator.crystall->energy<<" " << integrator.crystall->ke<<" " << integrator.crystall->pe <<endl;
         if(j%100==0){
             cout << "now in step " << j << " in the thermilisation phase" << endl;
             //cout << "nrofatomsfound "<<crystal.countAtoms()<< endl;
@@ -74,25 +74,32 @@ int main()
         //ofstream output;
         //output.open(p.createname(j).c_str());
         //integrator.integrateWithCell();
+
         //output << crystal << endl;
     }
     for(int j=0; j<nrofstepstotakemeasurements; j++){
-
-        integrator.integrate(false);
-        temperatures[j]=crystal.temperature();
-        measurements << j*integrator.h << " " <<crystal.temperature()<<" " << integrator.crystall.energy<<" " << integrator.crystall.ke<<" " << integrator.crystall.pe << " " << abs((integrator.crystall.energy - integrator.crystall.beginenergy)/integrator.crystall.beginenergy) << endl;
+        if(myrank==0){
+            integrator.integrate(false);
+        }
+        if(myrank==1){
+        integrator.integrate_noapprox();
+        }
+        //integrator.integrate_noapprox();
+        //temperatures[j]=crystal.temperature();
+        //measurements << j*integrator.h << " " <<crystal.temperature()<<" " << integrator.crystall->energy<<" " << integrator.crystall->ke<<" " << integrator.crystall->pe << " " << abs((integrator.crystall->energy - integrator.crystall->beginenergy)/integrator.crystall->beginenergy) << endl;
         //p.printvelocities(crystal, j);
         //integrator.integrate_noapprox();
-        //tempoutput << crystal.temperature()<<" " << integrator.crystall.energy<<" " << integrator.crystall.ke<<" " << integrator.crystall.pe <<endl;
+        //tempoutput << crystal.temperature()<<" " << integrator.crystall->energy<<" " << integrator.crystall->ke<<" " << integrator.crystall->pe <<endl;
         if(j%50==0){
             cout << "now in step " << j << " doing measurements, i am processor  " << myrank << endl;
             //cout << "nrofatomsfound "<<crystal.countAtoms()<< endl;
         }
-        ofstream output;
-        output.open(p.createname(j).c_str());
-        output << crystal << endl;
+//        ofstream output;
+//        output.open(p.createname(j).c_str());
+//        output << crystal << endl;
     }
-
+    int j=0;
+    //p.printvelocities(crystal, j);
     double avgtemp=0;
     for(int j=0; j<nrofstepstotakemeasurements; j++){
         avgtemp+=temperatures[j]/nrofstepstotakemeasurements;
@@ -108,9 +115,10 @@ int main()
 
     cout << "stddev final temperature " << stddev << endl;
 
-    //cout << "the boundary vector is " << crystal.boundary << endl;
-    //cout << "BC vector is " << crystal.vectorBC << endl;
-    //cout << "crystal has " << crystal.numberofatoms << " atoms "<< endl;
+    cout << "the temperature is " << integrator.crystall->temperature() << "for processor " << myrank <<endl;
+    cout << "the boundary vector is " << crystal.boundary << endl;
+    cout << "BC vector is " << crystal.vectorBC << endl;
+    cout << "crystal has " << integrator.crystall->countAtoms() << " atoms "<< endl;
     time_t tdone = time(0);
     cout << "I AM PROCESSOR "<< myrank << " and i worked for " << tdone-tinit << " seconds " << endl;
 

@@ -12,13 +12,13 @@ class VerletAlgo2
 {
 public:
     ofstream debugging;
-    VerletAlgo2(Crystal &crystal, double _h);
+    VerletAlgo2(Crystal *crystal, double _h);
     void integrate(bool);
     void integrate_noapprox();
     void integrateAtom(Atom *atom, vec3 boundvec);
 
     double h;
-    Crystal crystall;
+    Crystal *crystall;
 
     void updatePosition(Atom *atom, vec3 &boundvec);
     void updateVelocity(Atom *atom);
