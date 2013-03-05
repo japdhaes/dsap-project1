@@ -10,11 +10,18 @@
 
 using namespace std;
 
+//3.405 Angstrom
 const double xunit  =3.405;
 const double xunitSI=3.405e-10;
 const double tunitSI=2.1569e-12;
 const double vunitSI=xunitSI/tunitSI;
+//119.74 kelvin
 const double tempunit =119.74;
+//0.010318 eV
+const double energyunit=0.010318;
+
+//in SI units = Pa
+const double pressureunit=energyunit*1.6e-19/(xunit*xunit*xunit*1e-30);
 
 
 class Crystal
@@ -36,6 +43,10 @@ class Crystal
         int counter;
         vec3 boundary;
 
+        double pressure;
+        double volume;
+        double density;
+
         int countAtoms();
         friend ostream& operator<<( ostream&, const Crystal&);
 
@@ -45,6 +56,8 @@ class Crystal
         double pe;
         double ke;
         double inittemp;
+        //mean square displacement
+        double msqdplm;
         void setvectorBC(double desiredwidth);
         void initializeAtoms(double _temperature);
         void addAllAtomsToCells();

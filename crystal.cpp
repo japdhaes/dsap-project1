@@ -12,12 +12,17 @@ Crystal::Crystal(unsigned int _nc, double _b, int &seed, double _temperature)
     //this->debugging2.open("/home/jonathan/projectsFSAP/project1/project1/debuglog2.txt");
     this->nc=_nc;
     this->b=_b;
-    this->inittemp=_temperature;
+    this->inittemp=_temperature/tempunit;
     this->boundary << nc*b/xunit << nc*b/xunit << nc*b/xunit;
     this->numberofatoms=4*nc*nc*nc;
     this->energy=0;
     this->beginenergy=0;
     this->counter=0;
+    this->pressure=0;
+
+    this->volume=this->boundary(0)*this->boundary(1)*this->boundary(2);
+    this->density=numberofatoms/volume;
+    this->msqdplm=0;
 
 
     RanNormalSetSeedZigVec(&seed, 100);

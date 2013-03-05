@@ -4,7 +4,6 @@
 #include <armadillo>
 #include <ctime>
 #include <vector>
-#include "verletalgo.h"
 #include "verletalgo2.h"
 #include <sstream>
 #include "printing.h"
@@ -15,58 +14,58 @@ using namespace arma;
 using namespace std;
 
 
-
-int main()
-{
-    //UNIT SYSTEM!!
-    //Distances = Angstrom
-    //Time = picosecond
-    //Energy = electronvolt
-    //Mass = enter in amu, wrong unit system is addressed for in value of k
-    //Temperature = Kelvin
-    //velocity = angstrom/ps
-    //k = 0.8314766196505026 when masses are expressed in amu and T in K to get velocities in A/ps
-
-    //cubic lattice with nc x nc x nc cells
+void calculatepressures(double _temp, double *_avgpres, double *_stddevpres, double _b){
     time_t tinit = time(0);
 
-    int argc; char** argv; int numprocs, myrank;
-    MPI_Init(&argc, &argv);
-    MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
-    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+
 
     int seed = -1;
 
-    int nc=5;
-    double h=0.0025;
+//Liquid:
+//T=120K, rho/rho_0=0.8
+//b=5.82A
+//P=38MPa
+
+//SOLID:
+//T=60K, rho/rho_0=1.2
+//b=5.09A
+//P=0.6GPa
+
+//Gas:
+//T=359K
+//rho/rho_0 = 0.3
+//b=8.07A
+//P=44MPa
+
+
+    int nc=8;
+    double h=0.01;
     //latice parameter in unit Angstrom
-    double b=5.28;
-    double temperature=100;
+    double b=_b;
+    double temperature=_temp;
 
     //200
-    int nrofthermalizingsteps=0;
+    int nrofthermalizingsteps=200;
 
-    //int nrofstepstotakemeasurements=1800;
     int nrofstepstotakemeasurements=1000;
 
     system("rm /home/jonathan/projectsFSAP/project1/project1/output/*.xyz");
-    system("rm /home/jonathan/projectsFSAP/project1/project1/output/temperatures.txt");
     Printing p;
     Crystal crystal(nc, b, seed, temperature);
     p.printing(crystal);
     //VerletAlgo integrator(crystal);
     VerletAlgo2 integrator(&crystal, h);
 
-    ofstream measurements;
-    measurements.open("/home/jonathan/projectsFSAP/project1/project1/output/measurementsT0.0025.txt");
+//    ofstream measurements;
+//    measurements.open("/home/jonathan/projectsFSAP/project1/project1/output/measurements-gas.txt");
 
-    double temperatures[1800];
 
-    measurements << "#1:time #2:temperature  #3:total energy #4:kinetic energy #5:potential energy #6:relative energy error"<<endl;
+    double pressures[nrofstepstotakemeasurements];
+
+//    measurements << "#1:timesteps #2: time #3:temperature  #4:total energy #5:kinetic energy #6:potential energy #7:relative energy error #8:pressure"<<endl;
     for(int j=0; j<nrofthermalizingsteps; j++){
-        //TURNED OFF THERMOSTAT!!!
-        integrator.integrate(false);
-        measurements << j << " " <<crystal.temperature()<<" " << integrator.crystall->energy<<" " << integrator.crystall->ke<<" " << integrator.crystall->pe <<endl;
+        integrator.integrate(true);
+//        measurements << j<<" "<< j*integrator.h << " " <<crystal.temperature()<<" " << integrator.crystall->energy<<" " << integrator.crystall->ke<<" " << integrator.crystall->pe << " " << abs((integrator.crystall->energy - integrator.crystall->beginenergy)/integrator.crystall->beginenergy) << endl;
         if(j%100==0){
             cout << "now in step " << j << " in the thermilisation phase" << endl;
             //cout << "nrofatomsfound "<<crystal.countAtoms()<< endl;
@@ -78,51 +77,148 @@ int main()
         //output << crystal << endl;
     }
     for(int j=0; j<nrofstepstotakemeasurements; j++){
-        if(myrank==0){
-            integrator.integrate(false);
-        }
-        if(myrank==1){
-        integrator.integrate_noapprox();
-        }
+
+        integrator.integrate(false);
+
+
         //integrator.integrate_noapprox();
-        //temperatures[j]=crystal.temperature();
-        //measurements << j*integrator.h << " " <<crystal.temperature()<<" " << integrator.crystall->energy<<" " << integrator.crystall->ke<<" " << integrator.crystall->pe << " " << abs((integrator.crystall->energy - integrator.crystall->beginenergy)/integrator.crystall->beginenergy) << endl;
+        pressures[j]=integrator.crystall->pressure;
+//        measurements << j<<" "<< j*integrator.h << " " <<crystal.temperature()<<" " << integrator.crystall->energy<<" " << integrator.crystall->ke<<" " << integrator.crystall->pe << " " << abs((integrator.crystall->energy - integrator.crystall->beginenergy)/integrator.crystall->beginenergy) <<" "<< integrator.crystall->pressure<< endl;
         //p.printvelocities(crystal, j);
-        //integrator.integrate_noapprox();
-        //tempoutput << crystal.temperature()<<" " << integrator.crystall->energy<<" " << integrator.crystall->ke<<" " << integrator.crystall->pe <<endl;
         if(j%50==0){
-            cout << "now in step " << j << " doing measurements, i am processor  " << myrank << endl;
-            //cout << "nrofatomsfound "<<crystal.countAtoms()<< endl;
+//            cout << "now in step " << j << " doing measurements, i am processor  " << myrank << endl;
         }
-//        ofstream output;
-//        output.open(p.createname(j).c_str());
-//        output << crystal << endl;
     }
-    int j=0;
+    //int j=0;
     //p.printvelocities(crystal, j);
-    double avgtemp=0;
+    double avgpres=0;
     for(int j=0; j<nrofstepstotakemeasurements; j++){
-        avgtemp+=temperatures[j]/nrofstepstotakemeasurements;
+        avgpres+=pressures[j]/nrofstepstotakemeasurements;
     }
 
-    cout << "average final temperature " << avgtemp << endl;
+    *_avgpres=avgpres;
+
+//    cout << "average final temperature " << avgtemp << endl;
 
     double stddev=0;
     for(int j=0; j<nrofstepstotakemeasurements; j++){
-        stddev+=(1.0/(nrofstepstotakemeasurements-1))*(temperatures[j]-avgtemp)*(temperatures[j]-avgtemp);
+        stddev+=(1.0/(nrofstepstotakemeasurements-1))*(pressures[j]-avgpres)*(pressures[j]-avgpres);
     }
     stddev=sqrt(stddev);
 
-    cout << "stddev final temperature " << stddev << endl;
+    *_stddevpres=stddev;
 
-    cout << "the temperature is " << integrator.crystall->temperature() << "for processor " << myrank <<endl;
-    cout << "the boundary vector is " << crystal.boundary << endl;
-    cout << "BC vector is " << crystal.vectorBC << endl;
-    cout << "crystal has " << integrator.crystall->countAtoms() << " atoms "<< endl;
+
+//    cout << "stddev final temperature " << stddev << endl;
+
+//    cout << "the temperature is " << integrator.crystall->temperature() << "for processor " << myrank <<endl;
+//    cout << "the boundary vector is " << crystal.boundary << endl;
+//    cout << "BC vector is " << crystal.vectorBC << endl;
+//    cout << "crystal has " << integrator.crystall->countAtoms() << " atoms "<< endl;
     time_t tdone = time(0);
-    cout << "I AM PROCESSOR "<< myrank << " and i worked for " << tdone-tinit << " seconds " << endl;
+//    cout << "I AM PROCESSOR "<< myrank << " and i worked for " << tdone-tinit << " seconds " << endl;
+
+
+}
+
+void normalsimulation(){
+    time_t tinit = time(0);
+
+    //Liquid:
+    //T=120K, rho/rho_0=0.8
+    //b=5.82A
+    //P=38MPa
+
+    int seed = -1;
+    int nc=7;
+    double h=0.0025;
+    //latice parameter in unit Angstrom
+    double b=5.82;
+    double temperature=tempunit;
+
+    //200
+    int nrofthermalizingsteps=200;
+
+    int nrofstepstotakemeasurements=1000;
+
+    system("rm /home/jonathan/projectsFSAP/project1/project1/output/*.xyz");
+    Crystal crystal(nc, b, seed, temperature);
+
+    //VerletAlgo integrator(crystal);
+    VerletAlgo2 integrator(&crystal, h);
+
+    for(int j=0; j<nrofthermalizingsteps; j++){
+        integrator.integrate(true);
+        if(j%50==0){
+            cout << "now in step " << j << " in the thermilisation phase" << endl;
+        }
+    }
+    for(int j=0; j<nrofstepstotakemeasurements; j++){
+
+        integrator.integrate(false);
+        if(j%50==0){
+            cout << "now in step " << j << " taking measurement" << endl;
+        }
+    }
+
+
+//    cout << "stddev final temperature " << stddev << endl;
+
+//    cout << "the temperature is " << integrator.crystall->temperature() << "for processor " << myrank <<endl;
+//    cout << "the boundary vector is " << crystal.boundary << endl;
+//    cout << "BC vector is " << crystal.vectorBC << endl;
+//    cout << "crystal has " << integrator.crystall->countAtoms() << " atoms "<< endl;
+    time_t tdone = time(0);
+    cout << "I AM PROCESSOR " << " and i worked for " << tdone-tinit << " seconds " << endl;
+
+
+}
+
+void pressuresimulation(){
+    //UNIT SYSTEM!!
+    //Distances = Angstrom
+    //Time = picosecond
+    //Energy = electronvolt
+    //Mass = enter in amu, wrong unit system is addressed for in value of k
+    //Temperature = Kelvin
+    //velocity = angstrom/ps
+    //k = 0.8314766196505026 when masses are expressed in amu and T in K to get velocities in A/ps
+
+    //cubic lattice with nc x nc x nc cells
+
+    int argc; char** argv; int numprocs, myrank;
+    MPI_Init(&argc, &argv);
+    MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+
+    ofstream presstream;
+    presstream.open("/home/jonathan/projectsFSAP/project1/project1/output/pressuresdensity.txt", ios::app);
+
+    double pres, presstdv;
+    for(int j=3; j<10; j++){
+        for(int i=0; i<40; i++){
+            if(myrank==i%numprocs){
+                double b=double(j);
+                double density = 4.0*8.0*8.0*8.0/(xunit*xunit*xunit);
+                double temperature=i*20;
+                cout << "i am processor "<< myrank << " and i start simulation with temperature T="<<temperature << "and b=" << b <<endl;
+                calculatepressures(temperature, &pres, &presstdv, b);
+                presstream << temperature/tempunit << " " << density << pres << " " << presstdv <<endl;
+                cout << "i am processor " << myrank<< " " <<temperature << " " << pres << " " << presstdv <<endl;
+            }
+        }
+
+    }
+
+
+
 
     MPI_Finalize();
+}
+
+int main()
+{
+    normalsimulation();
     return 0;
 }
 /* vec3 r

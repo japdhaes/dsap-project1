@@ -9,6 +9,7 @@ Atom::Atom(vec position, vec v): position(position), velocity(v){
     this->nextAtom=NULL;
     this->m=39.948*1.66e-27;
     this->realposition=position;
+    this->initialposition=position;
 }
 
 vec3 Atom::getPosition(){

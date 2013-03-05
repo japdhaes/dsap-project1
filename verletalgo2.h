@@ -20,16 +20,16 @@ public:
     double h;
     Crystal *crystall;
 
-    void updatePosition(Atom *atom, vec3 &boundvec);
+    void updatePosition(Atom *atom);
     void updateVelocity(Atom *atom);
     void updateAcceler(Atom *atom);
     void updateAccelerNoApprox(Atom *atom);
 
     void calcForce(Atom *atom, Atom *otheratom);
     void findXYZCellIndices(int *nrXYZ, int *nrX, int *nrY, int *nrZ);
-    vec3 findClosestPosition(vec3 &position, vec3 &otherposition);
-    void boundCheck(vec3 &position, vec3 &boundvec);
-    double LJpotential(vec3 &relvec);
+    vec3 findClosestPosition(vec3 position, vec3 otherposition);
+    void boundCheck(vec3 position);
+    double LJpotential(vec3 relvec);
 };
 
 #endif // VERLETALGO2_H
