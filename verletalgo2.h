@@ -28,7 +28,7 @@ public:
     void calcForce(Atom *atom, Atom *otheratom);
     void findXYZCellIndices(int *nrXYZ, int *nrX, int *nrY, int *nrZ);
     vec3 findClosestPosition(vec3 position, vec3 otherposition);
-    void boundCheck(vec3 position);
+    vec3 boundCheck(vec3 position);
     double LJpotential(vec3 relvec);
 };
 

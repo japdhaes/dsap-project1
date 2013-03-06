@@ -121,6 +121,56 @@ void calculatepressures(double _temp, double *_avgpres, double *_stddevpres, dou
 
 }
 
+void simulationwithoutput(){
+    time_t tinit = time(0);
+
+    //Liquid:
+    //T=120K, rho/rho_0=0.8
+    //b=5.82A
+    //P=38MPa
+
+    int seed = -1;
+    int nc=8;
+    double h=0.0025;
+    //latice parameter in unit Angstrom
+    double b=5.82;
+    double temperature=tempunit;
+
+    //200
+    int nrofthermalizingsteps=200;
+
+    int nrofstepstotakemeasurements=1000;
+
+    system("rm /home/jonathan/projectsFSAP/project1/project1/output/*.xyz");
+    Crystal crystal(nc, b, seed, temperature);
+
+    //VerletAlgo integrator(crystal);
+    VerletAlgo2 integrator(&crystal, h);
+
+    ofstream measurements;
+    measurements.open("/home/jonathan/projectsFSAP/project1/project1/output/measurements.txt");
+    measurements << "#1:timesteps #2: time #3:temperature  #4:total energy #5:kinetic energy #6:potential energy #7:relative energy error #8:pressure #9:mean square displacement"<<endl;
+    for(int j=0; j<nrofthermalizingsteps; j++){
+        integrator.integrate(true);
+        if(j%50==0){
+            cout << "now in step " << j << " in the thermilisation phase" << endl;
+        }
+    }
+    for(int j=0; j<nrofstepstotakemeasurements; j++){
+
+        integrator.integrate(false);
+
+
+        //integrator.integrate_noapprox();
+        measurements << j<<" "<< j*integrator.h << " " <<crystal.temperature()<<" " << integrator.crystall->energy<<" " << integrator.crystall->ke<<" " << integrator.crystall->pe << " " << abs((integrator.crystall->energy - integrator.crystall->beginenergy)/integrator.crystall->beginenergy) <<" "<< integrator.crystall->pressure<< " " << integrator.crystall->msqdplm<<endl;
+        if(j%50==0){
+            cout << "now in step " << j << " doing measurements, i am processor  "  << endl;
+        }
+    }
+
+
+}
+
 void normalsimulation(){
     time_t tinit = time(0);
 
@@ -218,34 +268,8 @@ void pressuresimulation(){
 
 int main()
 {
-    normalsimulation();
+    simulationwithoutput();
     return 0;
 }
-/* vec3 r
- *r<<x<<y<<z;
- *
- *mat h = zeros(2,2); //2x2 matrix
- *same as mat h= zeros<mat>(2,2);
- *h << 1 << 2 << endr
- * << 3 << 4 ;
- *
- *h(0,1) = 1e rij 2e kolom element
- *
- *vec r; r<<1<<2<<3;
- *vec p; p<<0<<1<<2;
- *
- *dot(r,p) <- dotproduct
- *
- *r.t()*p <-- same result!
- *
- *norm(r,2) <= norm
- *r.n_elem <= number of elements in the vector
- *
- *we can do matrix A * vector p
- *We can do inv(A) to get inverse of matrix
- *We can do det(a) to get determinant
- *
- *A.col(0) returns the first column as a vector
- *
- */
+
 

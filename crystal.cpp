@@ -33,6 +33,7 @@ Crystal::Crystal(unsigned int _nc, double _b, int &seed, double _temperature)
     this->removeCrystalMomentum();
     this->initializeCells();
     this->addAllAtomsToCells();
+
 }
 
 void Crystal::removeCrystalMomentum(){
