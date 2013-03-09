@@ -31,7 +31,7 @@ void VerletAlgo2::integrate(bool thermalize){
 
     }
     this->crystall->msqdplm/=this->crystall->numberofatoms;
-    cout << this->crystall->msqdplm <<endl;
+//    cout << this->crystall->msqdplm <<endl;
 // cout << crystall->temperature()<<endl;
     for(unsigned int i=0; i<crystall->allcells.size(); i++){
         for(unsigned int j=0; j<crystall->allcells.at(i).size();j++){
@@ -61,17 +61,50 @@ void VerletAlgo2::integrate(bool thermalize){
     crystall->ke= crystall->energy-crystall->pe;
 // cout <<"crystal energy "<<crystall->energy <<endl;
     if(thermalize){
-        double tem=crystall->temperature();
-        double ratio = crystall->inittemp/tem;
-        for(int i=0; i<crystall->allatoms.size();i++){
-            Atom *atom = crystall->allatoms[i];
-            vec3 velocity = atom->getVelocity();
-            atom->setVelocity(velocity*ratio);
-        }
+        thermostatAndersen();
     }
     if(crystall->beginenergy==0&&!thermalize){
         crystall->beginenergy=crystall->energy;
     }
+}
+
+void VerletAlgo2::thermostatAnders(){
+    double tem=crystall->temperature();
+    double ratio = crystall->inittemp/tem;
+    for(int i=0; i<crystall->allatoms.size();i++){
+        Atom *atom = crystall->allatoms[i];
+        vec3 velocity = atom->getVelocity();
+        atom->setVelocity(velocity*ratio);
+    }
+}
+
+void VerletAlgo2::thermostatBerendsen(){
+    double tau=20.0*h;
+    double tem=crystall->temperature();
+    double tbath=crystall->inittemp;
+    double gamma = 1+h/tau*(tbath/tem-1);
+    gamma=sqrt(gamma);
+    for(int i=0; i<crystall->allatoms.size();i++){
+        Atom *atom = crystall->allatoms[i];
+        vec3 velocity = atom->getVelocity();
+        atom->setVelocity(velocity*gamma);
+    }
+}
+
+void VerletAlgo2::thermostatAndersen(){
+    double tau=20.0*h;
+    int nAtoms= crystall->numberofatoms;
+    vec  v = randu<vec>(nAtoms);
+    double tem=this->crystall->inittemp;
+    for(int i=0; i<nAtoms;i++){
+        if(v(i)<h/tau){
+            Atom *atom = crystall->allatoms[i];
+            vec3 v1; v1.zeros();
+            v1 << DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem)<< DRanNormalZigVec()*sqrt(tem);
+            atom->setVelocity(v1);
+        }
+    }
+//
 }
 
 void VerletAlgo2::integrate_noapprox(){
@@ -276,7 +309,7 @@ void VerletAlgo2::findXYZCellIndices(int* nrXYZ, int* nrX, int* nrY, int* nrZ){
 
 }
 
-vec3 VerletAlgo2::findClosestPosition(vec3 position, vec3 otherposition){
+vec3 VerletAlgo2::findClosestPosition(vec3 &position, vec3 &otherposition){
     vec3 answer; answer.fill(0);
     bool debugg=false;
     for(int i=0; i<3; i++){
@@ -305,25 +338,12 @@ void VerletAlgo2::updatePosition(Atom *atom){
     vec3 position=atom->getPosition();
     vec3 velocity=atom->getVelocity();
 
-//    cout << "begin updatepos"<<atom->number<<endl;
-
     int nrXYZ[3];
-//    if(atom->number==2042){
-//        cout << "begin updatepos"<<endl;
-//        cout << "position "<<position<<endl;
-//        cout << "vectorBC" <<crystall->vectorBC<<endl;
-//    }
-
     for(int i=0; i<3; i++){
         nrXYZ[i]=int(position(i)/crystall->vectorBC(i));
     }
     position+=velocity*this->h;
 
-//    if(atom->number==2042){
-//        cout << "new position "<<position<<endl;
-//    }
-
-    //realposition updated for the diffusion
     atom->realposition+=velocity*this->h;
     vec3 finalposition =boundCheck(position);
     atom->setPosition(finalposition);
@@ -336,18 +356,12 @@ void VerletAlgo2::updatePosition(Atom *atom){
         atom->currentcell->removeelement(atom);
         int x,y,z;
         crystall->findCellOfAtom(atom, x, y, z);
-//        if(atom->number==2042){
-//            cout << "xyz"<<x<<y<<z<<endl;
-//        }
         crystall->allcells.at(x).at(y).at(z).insertElement(atom);
     }
-//    if(atom->number==2042){
-//        cout << "end updatepos"<<endl;
-//    }
 }
 
 
-vec3 VerletAlgo2::boundCheck(vec3 position){
+vec3 VerletAlgo2::boundCheck(vec3 &position){
     vec3 boundvec = this->crystall->boundary;
     vec3 answer=position;
     for(int i=0; i<3; i++){

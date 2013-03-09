@@ -66,6 +66,8 @@ class Crystal
 
         double temperature();
         void removeCrystalMomentum();
+        vec3 findClosestPosition(vec3 position, vec3 otherposition);
+        void radialDistFunction();
 };
 
 #endif // CRYSTAL_H

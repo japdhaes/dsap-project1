@@ -211,3 +211,57 @@ void Crystal::setvectorBC(double desiredwidth)
         this->vectorBC(i)= this->boundary(i)/j;
     }
 }
+
+void Crystal::radialDistFunction(){
+
+    double maxlength=this->boundary(0)*0.5*sqrt(3);
+    double unit=maxlength*0.01;
+    double distribution[100];
+    for(int i=0; i<100; i++){
+        distribution[i]=0.0;
+    }
+    for(int i=0; i<this->allatoms.size();i++){
+        for(int j=i+1; j<this->allatoms.size();j++){
+            Atom *atom = this->allatoms[i];
+            Atom *otheratom = this->allatoms[j];
+            vec3 position=atom->getPosition();
+            vec3 otherposition = this->findClosestPosition(position, otheratom->getPosition());
+            double norm=0.0;
+            for(int k=0; k<3; k++){
+                norm+=(position(k)-otherposition(k))*(position(k)-otherposition(k));
+            }
+            norm=sqrt(norm);
+            distribution[int(norm/unit)]+=2;
+        }
+    }
+    double average=0.0;
+    for(int i=0; i<100; i++){
+        average+=distribution[i];
+    }
+    average/=100;
+    ofstream measurements;
+    measurements.open("/home/jonathan/projectsFSAP/project1/project1/output/radialdistributionsolid.txt");
+    for(int i=0; i<100; i++){
+        measurements<< i*unit <<" " <<distribution[i]/average<<endl;
+    }
+    measurements.close();
+
+}
+
+vec3 Crystal::findClosestPosition(vec3 position, vec3 otherposition){
+    vec3 answer; answer.fill(0);
+    bool debugg=false;
+    for(int i=0; i<3; i++){
+        double projectionother = otherposition(i);
+        double projectionpos = position(i);
+        double l=this->boundary(i);
+        double distance=l;
+        for(int j=-1; j<2; j++){
+            distance=abs(projectionpos-(projectionother+j*l));
+            if(distance<=l/2){
+                answer(i)=projectionother+j*l;
+            }
+        }
+    }
+    return answer;
+}

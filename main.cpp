@@ -133,13 +133,13 @@ void simulationwithoutput(){
     int nc=8;
     double h=0.0025;
     //latice parameter in unit Angstrom
-    double b=5.82;
+    double b=5.26;
     double temperature=tempunit;
 
     //200
-    int nrofthermalizingsteps=200;
+    int nrofthermalizingsteps=500;
 
-    int nrofstepstotakemeasurements=1000;
+    int nrofstepstotakemeasurements=0;
 
     system("rm /home/jonathan/projectsFSAP/project1/project1/output/*.xyz");
     Crystal crystal(nc, b, seed, temperature);
@@ -148,10 +148,12 @@ void simulationwithoutput(){
     VerletAlgo2 integrator(&crystal, h);
 
     ofstream measurements;
-    measurements.open("/home/jonathan/projectsFSAP/project1/project1/output/measurements.txt");
+    measurements.open("/home/jonathan/projectsFSAP/project1/project1/output/measurementsandersen.txt");
     measurements << "#1:timesteps #2: time #3:temperature  #4:total energy #5:kinetic energy #6:potential energy #7:relative energy error #8:pressure #9:mean square displacement"<<endl;
     for(int j=0; j<nrofthermalizingsteps; j++){
         integrator.integrate(true);
+        measurements << j<<" "<< j*integrator.h << " " <<crystal.temperature()<<" " << integrator.crystall->energy<<" " << integrator.crystall->ke<<" " << integrator.crystall->pe << " " << abs((integrator.crystall->energy - integrator.crystall->beginenergy)/integrator.crystall->beginenergy) <<" "<< integrator.crystall->pressure<< " " << integrator.crystall->msqdplm<<endl;
+
         if(j%50==0){
             cout << "now in step " << j << " in the thermilisation phase" << endl;
         }
@@ -167,6 +169,7 @@ void simulationwithoutput(){
             cout << "now in step " << j << " doing measurements, i am processor  "  << endl;
         }
     }
+//    integrator.crystall->radialDistFunction();
 
 
 }

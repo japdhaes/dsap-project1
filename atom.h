@@ -43,4 +43,12 @@ class Atom
 
 };
 
+inline vec3 Atom::getPosition(){
+    return position;
+}
+
+inline vec3 Atom::getVelocity(){
+    return velocity;
+}
+
 #endif // ATOM_H

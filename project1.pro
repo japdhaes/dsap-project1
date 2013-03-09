@@ -7,7 +7,6 @@ CONFIG -= qt
 SOURCES += main.cpp \
     crystal.cpp \
     atom.cpp \
-    verletalgo.cpp \
     printing.cpp \
     zigrandom.c \
     zignor.c \
@@ -17,7 +16,6 @@ SOURCES += main.cpp \
 HEADERS += \
     crystal.h \
     atom.h \
-    verletalgo.h \
     printing.h \
     zigrandom.h \
     zignor.h \
